@@ -1,0 +1,12 @@
+div.activity {
+    border-left-color: rgba(246, 106, 10, 1);
+    background-color: rgba(246, 106, 10, 0.1);;
+}
+div.activity .admonition-title {
+    background-color: rgba(246, 106, 10, .1)
+}
+
+div.activity .admonition-title::after {
+    color: rgba(246, 106, 10, 1);
+    content: '\f19d';
+}

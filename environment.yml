@@ -1,0 +1,12 @@
+name: CSCI-531
+channels:
+  - default
+dependencies:
+  - python>=3.8
+  - sphinx
+  - pip
+  - matplotlib
+  - pip:
+    - pytorch
+    - jupyter-book
+    - stabe;-baselines3

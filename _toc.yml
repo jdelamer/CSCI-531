@@ -1,0 +1,20 @@
+format: jb-book
+root: intro
+chapters:
+- file: lectures/intro/intro
+- file: lectures/multi-armed-bandit/multi-armed-bandit
+  sections:
+  - file: lectures/multi-armed-bandit/the-problem
+  - file: lectures/multi-armed-bandit/more_about_multi-armed_bandit
+  - file: code/mbp
+- file: lectures/mdp/markov-decison-process/markov_decision_process
+  sections:
+  - file: lectures/mdp/markov-decison-process/mdp-learning
+  - file: lectures/mdp/dynamic-programming/dynamic-programming
+- file: lectures/rl/reinforcement-learning
+  sections:
+  - file: lectures/rl/monte-carlo/monte-carlo-methods
+  - file: lectures/rl/Temporal-difference learning/td-learning
+  - file: lectures/rl/approximate-solutions/on-policy-prediction
+  - file: lectures/rl/eligibility-traces/eligibility-traces
+  - file: lectures/rl/policy-gradient/policy-gradient-methods
