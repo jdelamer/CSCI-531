@@ -1,6 +1,17 @@
+---
+jupytext:
+  formats: md:myst
+  text_representation:
+    extension: .md
+    format_name: myst
+kernelspec:
+  display_name: Python 3
+  language: python
+  name: python3
+---
+
 # Policies and Value Function
 
-- In the previous topic, we introduced formally Markov Decision Processes.
 - The objectives of MDP is to maximize the cumulative reward.
 - We will see how it can be done and how it is linked to the action selection.
 
@@ -41,7 +52,7 @@
 :class: example
 
 - You receive three times a reward of $10$.
-- $G_t$ is the sum of thiss rewards, so $30$.
+- $G_t$ is the sum of these rewards, so $30$.
 
 :::{figure} ./img/expected_return.drawio.png
 :align: center
@@ -62,6 +73,10 @@ What happens if $T=\infty$, meaning if the problem does not end?
 
   where $\gamma$ is a parameter $0\leq\gamma\leq 1$ called **discount rate**.
 
+```{margin}
+In most cases, the discount rate $\gamma$ is around 0.9.
+```
+
 - This discount rate represents how much future rewards are important compared to immediate rewards.
 
   - A reward received at step $k$ is worth only $\gamma^k$ times what it would be worth now.
@@ -78,6 +93,35 @@ What happens if $T=\infty$, meaning if the problem does not end?
 :align: center
 :::
 ::::
+
+Following the same example, if we keep receving a reward of $10$ with a discount rate $\gamma=0.5$. After $10$ steps the discounted reward is close to $0$. 
+
+```{code-cell} ipython3
+import matplotlib.pyplot as plt
+import numpy as np
+
+G = []
+for i in range(10):
+  G.append(0.5**i * 10)
+```
+
+```{code-cell} ipython3
+:tags: ["hide-input"]
+
+plt.style.use('seaborn-v0_8')
+x = np.linspace(1, 10, len(G))
+
+fig, ax = plt.subplots()
+
+ax.plot(x, G, linewidth=2.0, color="C1")
+ax.set_title("Evolution of the reward in the discounted return")
+ax.set_ylabel("Discounted reward")
+ax.set_xlabel("Episodes")
+
+plt.show()
+```
+
+
 
 :::{important}
 - If $\gamma < 1$ has a finite value if the sequence is bounded.

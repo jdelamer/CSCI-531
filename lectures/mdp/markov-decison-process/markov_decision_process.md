@@ -17,40 +17,40 @@ MDPS involve delayed rewards, so it involves the need to trade off immediate and
 How is it different from multi-armed bandit?
 :::
 
-- Reinforcement learning and Markov decision processes are so linked that an MDP is just and idealized form of RL.
+- Reinforcement learning and Markov decision processes are so linked that an MDP is just an idealized form of RL.
 - In an MDP, we know the problem perfectly and we try to find the optimal solution.
 
 ## Markov Decision Process Definition
 
 - Markov decision processes formalize how an **agent** learn to achieve a goal.
 
-- The agent can interact with the **environment**.
+- The agent can interact with the **{term}`environment`**.
 
-- The environment comprises everything outside the agent.
+- The environment comprises everything outside the agent. All the information about the environment is called the **state**.
 
 - When the agent interact with the environment, the environment changes.
 
   - The agent will then consider a possible new action depending of the new situation.
   - It repeats until the problem is solved.
 
-:::{admonition} Definition
-:class: definition
-
+````{prf:definition} Markov Decision Process
+:label: MDP
 Formally, a MDP is defined as a tuple $(S,A,T,R)$:
 
 - $S$ is the finite set of states $s \in S$,
 - $A$ is the finite set of action $a \in A$,
 - $T: S\times A \times S \rightarrow [0,1]$ is the transition function,
 - $R: S\times A \rightarrow \mathbb{R}$ the reward function.
-:::
+````
 
 :::{figure} ./img/mdp.drawio.png
 :align: center
+:width: 70%
 :::
 
 - The figure represents the agent-environment interaction.
 
-- At each time step $t$, the environment is in a state $s_t$.
+- At each time step $t$, the {term}`environment` is in a state $s_t$.
 
 - Based on this state, the agent must select an action $a_t \in A$.
 
@@ -65,7 +65,7 @@ $$
 s_0, a_0, s_1, a_1, \dots
 $$
 
-- This sequence is called a **trajectory**.
+- This sequence is called a **{term}`trajectory`**.
 
 :::{figure} ./img/trajectory.drawio.png
 :align: center
@@ -101,15 +101,15 @@ $$
 :align: center
 :::
 
-- If you look at the transition function, we can note something.
+If you look at the transition function, we can note something.
 - The probability of $s'$ depends only on state $s$ and action $a$.
-- We call this the Markov property.
+- We call this the **Markov property**.
 
-:::{admonition} Definition
-:class: definition
+````{prf:definition} Markov Property
+:label: markov-property
 
 All information about past interactions necessary to predict the future state must be contained in the current state.
-:::
+````
 
 :::{admonition} Activity
 :class: activity
@@ -119,7 +119,7 @@ Try to explain why this is important for an MDP.
 
 ### Reward function
 
-- Finally, the reward for doing an action $a_t$ in $s_t$ is given by a function $r(s,a)$.
+Finally, the reward for doing an action $a_t$ in $s_t$ is given by a function $r(s,a)$.
 
 ## Applications and implications
 
