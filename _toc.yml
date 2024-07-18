@@ -1,7 +1,7 @@
 format: jb-book
 root: intro
 chapters:
-- file: lectures/intro/intro
+- file: lectures/intro/introduction
 - file: lectures/multi-armed-bandit/multi-armed-bandit
   sections:
   - file: lectures/multi-armed-bandit/the-problem
@@ -18,3 +18,5 @@ chapters:
   - file: lectures/rl/approximate-solutions/on-policy-prediction
   - file: lectures/rl/eligibility-traces/eligibility-traces
   - file: lectures/rl/policy-gradient/policy-gradient-methods
+chapters:
+- file: glossary

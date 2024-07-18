@@ -1,11 +1,12 @@
-# Welcome to your Jupyter Book
+# Reinforcement Learning Course
 
-This is a small sample book to give you a feel for how book content is
-structured.
-It shows off a few of the major file types, as well as some sample content.
-It does not go in-depth into any particular topic - check out [the Jupyter Book documentation](https://jupyterbook.org) for more information.
+An introduction to reinforcement learning. Proficieny in python is required.
 
-Check out the content pages bundled with this sample book to see more.
+This course will introduce the fundamentals of Reinforcement learning (RL) and Deep learning techniques. The course will cover the Tabular solution methods, such as the finite Markov Decision Processes and Temporal-Difference learning. It will also cover approximation solution methods, as on-policy and off-policy approximations. By the end of the course, new deep-learning techniques will be introduced.
 
-```{tableofcontents}
-```
+## Professors
+
+Dr. Jean-Alexis Delamer
+
+* jdelamer at stfx.ca
+* Annex 9C

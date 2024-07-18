@@ -6,7 +6,7 @@
 * Reinforcement learning is what to do to maximize a reward.
 * We can give a more "formal" definition.
 
-````{prf:definition}
+````{prf:definition} Reinforcement Learning
 :label: def-rl
 
 Reinforcement Learning is calculating a function that maps situations to actions.
@@ -118,7 +118,8 @@ What are the two elements we talked about that compose reinforcement learning?
   * A value function
   * A model of the environment (optional)
 
-````{prf:definition}
+````{prf:definition} Policy
+:label: policy_basic
 
 A policy is a function that maps each state to an action.
 ````
@@ -133,7 +134,8 @@ A policy is a function that maps each state to an action.
 :align: center
 ```
 
-````{prf:definition}
+````{prf:definition} Reward
+:label: reward
 
 A reward is a value returned by the environment at a time step $t$.
 ````
@@ -141,7 +143,8 @@ A reward is a value returned by the environment at a time step $t$.
 *  It defines the goal of a reinforcement learning problem.
 *  Remember that the agent's objective is to maximize the total reward it receives.
 
-````{prf:definition}
+````{prf:definition} Value Function
+:label: value_function_basic
 
 A value function is a function returning for each state the total expected reward starting from this state.
 ````
@@ -159,7 +162,8 @@ A value function is a function returning for each state the total expected rewar
 * We seek actions that lead us to states that bring higher value not higher reward.
 * Unfortunately, it is harder to determine the value than the reward.
 
-````{prf:definition}
+````{prf:definition} Model
+:label: model
 
 The model of the environment is the representation of the dynamic of the problem.
 ````

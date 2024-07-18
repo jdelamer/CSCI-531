@@ -73,7 +73,7 @@ What happens if $T=\infty$, meaning if the problem does not end?
 
   where $\gamma$ is a parameter $0\leq\gamma\leq 1$ called **discount rate**.
 
-```{margin}
+```{margin} Discount rate
 In most cases, the discount rate $\gamma$ is around 0.9.
 ```
 
@@ -99,6 +99,7 @@ Following the same example, if we keep receving a reward of $10$ with a discount
 ```{code-cell} ipython3
 import matplotlib.pyplot as plt
 import numpy as np
+from myst_nb import glue
 
 G = []
 for i in range(10):
@@ -106,7 +107,7 @@ for i in range(10):
 ```
 
 ```{code-cell} ipython3
-:tags: ["hide-input"]
+:tags: ["remove-cell"]
 
 plt.style.use('seaborn-v0_8')
 x = np.linspace(1, 10, len(G))
@@ -118,17 +119,47 @@ ax.set_title("Evolution of the reward in the discounted return")
 ax.set_ylabel("Discounted reward")
 ax.set_xlabel("Episodes")
 
-plt.show()
+glue("discounted_returns", fig, display=False)
 ```
 
+```{glue:figure} discounted_returns
+:figwidth: 70%
+```
+
+```{code-cell} ipython3
+:tags: ["remove-cell"]
+
+G = []
+for i in range(10):
+  G.append(0.9**i * 10)
+
+plt.style.use('seaborn-v0_8')
+x = np.linspace(1, 10, len(G))
+
+fig, ax = plt.subplots()
+
+ax.plot(x, G, linewidth=2.0, color="C1")
+ax.set_title("Evolution of the reward in the discounted return")
+ax.set_ylabel("Discounted reward")
+ax.set_xlabel("Episodes")
+ax.set_ylim([-0.5, 10.5])
+
+glue("discounted_returns_margin", fig, display=False)
+```
+
+````{margin} Impact of the discount rate
+If we are setting the discount rate to $\gamma=0.9$, later rewards are less discounted.
+
+```{glue:} discounted_returns_margin
+```
+````
 
 
 :::{important}
-- If $\gamma < 1$ has a finite value if the sequence is bounded.
+If $\gamma < 1$ has a finite value if the sequence is bounded.
 :::
 
-- This is crucial part of reinforcement learning.
-- It works well, because the returns at each time step are related to each other:
+Discounted returns is a crucial part of reinforcement learning. And its formulation is efficient, because the returns at each time step are related to each other:
 
 $$
 \begin{aligned}
@@ -139,12 +170,11 @@ G_t &=  r_{t} + \gamma r_{t+1} + \gamma^2 r_{t+2} + \dots\\
 $$
 
 :::{note}
-- Even if $T=\infty$ the return is still finite
+Even if $T=\infty$ the return is still finite
+- if the reward is nonzero and constant and,
+- if $\gamma < 1$
 
-  - if the reward is nonzero and constant and,
-  - if $\gamma < 1$
-
-- For example, is the reward is a constant $+1$, then the return is:
+For example, if the reward is a constant $+1$, then the return is:
 
 $$
 G_t = \sum_{k=0}^\infty \gamma^k = \frac{1}{1-\gamma}
@@ -153,101 +183,89 @@ $$
 
 ## Policies and Value functions
 
-- We know how to calculate the expected return of a sequence of rewards.
+We understand how to compute the expected return from a sequence of rewards. Next, we need to connect this to our trajectory, focusing specifically on decision-making.
 
-- Now, we need to link that to our trajectory and more precisely on the decision-making.
+- The agent must learn which action to take based on its current state.
 
-  - The agent is supposed to learn which action to take depending on the state.
+Reinforcement learning algorithms achieve this by implementing a **value function**:
 
-- To do that reinforcement learning algorithms implement a **value function**.
+- This function estimates the expected return for being in a specific state.
+- Value functions are closely tied to **policies**.
 
-  - Estimates the expected return of being in a specific state.
-  - Value functions are closely linked to **policies**.
-
-:::{admonition} Definition: Policy
-:class: definition
+```{prf:definition} Policy
 
 A policy is a mapping from states to probabilities of each possible action.
-:::
+```
 
-- We denote a policy $\pi$.
-- The probability that the agent following a policy $\pi$ select an action $a$ in state $s$ is denoted $\pi(a|s)$.
+We denote a policy $\pi$ and the probability that the agent following a policy $\pi$ select an action $a$ in state $s$ is denoted $\pi(a|s)$.
 
-:::{figure} ./img/policy.drawio.png
+```{figure} ./img/policy.drawio.png
 :align: center
-:::
+```
 
-:::{admonition} Definition: Value function
-:class: definition
+```{prf:definition} Value function
 
 The value function of a state $s$ under a policy $\pi$ is the expected return when starting in $s$ and following $\pi$ thereafter.
-:::
+```
 
-- In MDPs, $v_\pi$ is defined as:
+In MDPs, $v_\pi$ is defined as:
 
-  $$
-  v_\pi(s) = \mathbb{E}_\pi\left[G_t | s_t=s \right] = \mathbb{E}_\pi\left[ \sum_{k=0}^\infty\gamma^k r_{t+k+1} | s_t = s \right]
-  $$
+$$
+v_\pi(s) = \mathbb{E}_\pi\left[G_t | s_t=s \right] = \mathbb{E}_\pi\left[ \sum_{k=0}^\infty\gamma^k r_{t+k+1} | s_t = s \right]
+$$
 
-- Note, that we used only the definition of $G_t$.
+Note, that we used only the definition of $G_t$ to define the value function. 
 
-- Now we can estimate the value of a state.
+With this definition, we can estimate the value of a state. Consider the following figure, if we want to calculate the expected return of state $s_0$, we need to consider all the possible outcomes.
 
 :::{figure} ./img/value_functions.drawio.png
 :align: center
 :::
 
-- However, we need to estimate the value of a specific action in a state.
+One way to tackle this, is to estimate the value of specific actions in a state. We call these values **q-values**:
 
-- This is defined by **q-values**:
-
-  $$
-  q_\pi(s,a) = \mathbb{E}_\pi\left[G_t | s_t=s , a_t =  a\right] = \mathbb{E}_\pi\left[ \sum_{k=0}^\infty\gamma^k r_{t+k+1} | s_t = s, a_t = a \right]
-  $$
+$$
+q_\pi(s,a) = \mathbb{E}_\pi\left[G_t | s_t=s , a_t =  a\right] = \mathbb{E}_\pi\left[ \sum_{k=0}^\infty\gamma^k r_{t+k+1} | s_t = s, a_t = a \right]
+$$
 
 :::{figure} ./img/q_functions.drawio.png
 :align: center
 :::
 
-- Lastly, value functions are also recursive:
+Lastly, we use another property of the value function. Value functions can be calculated recursively:
 
-  $$
-  \begin{aligned}
-  v_\pi(s) &= \mathbb{E}_\pi\left[G_t | s_t=s \right]\\
-  &= \mathbb{E}_\pi\left[r_{t} + \gamma G_{t}| s_t = s\right]\\
-  &= \sum_a \pi(a|s)\sum_{s'}p(s'|s,a)\left[ r(s,a) + \gamma\mathbb{E}_\pi\left[G_{t+1} | s_{t+1}=s' \right] \right]\\
-  &= \sum_a \pi(a|s)\sum_{s'}p(s'|s,a)\left[r + \gamma v_\pi(s')\right]\\
-  \end{aligned}
-  $$
+$$
+\begin{aligned}
+v_\pi(s) &= \mathbb{E}_\pi\left[G_t | s_t=s \right]\\
+&= \mathbb{E}_\pi\left[r_{t} + \gamma G_{t}| s_t = s\right]\\
+&= \sum_a \pi(a|s)\sum_{s'}p(s'|s,a)\left[ r(s,a) + \gamma\mathbb{E}_\pi\left[G_{t+1} | s_{t+1}=s' \right] \right]\\
+&= \sum_a \pi(a|s)\sum_{s'}p(s'|s,a)\left[r + \gamma v_\pi(s')\right]\\
+\end{aligned}
+$$
 
-- This is the **Bellman equation** applied to $v_t$.
+```{margin} Bellman equation
+The Bellman equation is dynammic programming applied to MDPs.
+```
 
-- Remember your course on dynamic programming.
+This is the **Bellman equation** applied to $v_t$.
 
 ## Optimal Policies and Optimal Value Functions
 
-- A policy $\pi$ is just a mapping function.
-- Calculating a policy doesn't guarantee that it's optimal to solve the problem.
+We have the means to calculate the value function for a state $s$ under a policy $\pi$. A policy $\pi$ is simply a mapping function, meaning that calculating a policy alone does not ensure it is optimal for solving the problem.
 
 :::{admonition} Activity
 :class: activity
 
-- Propose a method to calculate the optimal policy.
+Propose a method to calculate the optimal policy.
 :::
 
-- Intuitively, we would like to compare two policies $\pi, \pi'$ and find the best.
-- Concretely we want to create an ordering $\pi > \pi'$.
-- Remember that a policy $\pi$ has an associated value function $v_\pi$.
-- We can compare policies by checking the return for each state $s \in S$.
-- The policy is considered better if $\forall s\in S, \pi(s)\geq\pi'(s)$.
+Intuitively, we want to compare two policies $\pi$ and $\pi'$ to determine which is better. Concretely, we aim to establish an ordering such that $\pi > \pi'$. Recall that a policy $\pi$ has an associated value function $v_\pi$. We can compare policies by evaluating the return for each state $s \in S$. A policy $\pi$ is considered better if $\forall s \in S, v_\pi(s) \geq v_{\pi'}(s)$.
 
 :::{important}
 There is always at least one policy that is better than or equal to all other policies.
 :::
 
-- The optimal policy is denoted $\pi^*$.
-- The optimal policy has an associated optimal value function.
-- The optimal value function is denoted $v^*$ and defined as:
+The optimal policy is denoted $\pi^*$ and has an associated optimal value function. The optimal value function is denoted $v^*$ and defined as:
 
 $$
 v^*(s) =  \max_\pi v_\pi(s), \forall s\in S
@@ -256,16 +274,16 @@ $$
 :::{admonition} Activity
 :class: activity
 
-- Discuss if for the same MDP we can find more than one optimal policy.
+Discuss if for the same MDP we can find more than one optimal policy.
 :::
 
-- Because there is an optimal value function, there is an optimal q-value function:
+Because there is an optimal value function, there is an optimal q-value function:
 
 $$
 q^*(s,a) = \max_\pi q_\pi(s,a)
 $$
 
-- We can rewrite the optimal value function as a Bellman equation:
+We can rewrite the optimal value function as a Bellman equation:
 
 $$
 \begin{aligned}
@@ -280,7 +298,7 @@ $$
 :::{admonition} Activity
 :class: activity
 
-- What can you conclude from this equation?
+What can you conclude from this equation?
 :::
 
-- To calculate the optimal policy, we "just" need to calculate the optimal value function.
+To determine the optimal policy, we "simply" need to calculate the optimal value function.

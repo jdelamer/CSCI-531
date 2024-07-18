@@ -1,16 +1,14 @@
 # Dynamic Programming
 
-- We have seen in two previous topics how we can model a problem and how we can determine the best policy.
+In two previous topics, we explored how to model a problem and determine the best policy. The final piece is an algorithm to calculate the optimal policy and value function.
 
-- The only thing missing is an algorithm to calculate the optimal policy and value function.
+There are various approaches to this:
 
-- There are different approaches:
+- Dynamic programming
+- Monte Carlo methods
+- Reinforcement learning
 
-  - Dynamic programming
-  - Monte-Carlo methods
-  - Reinforcement learning
-
-- Dynamic programming is the first proposed and it gives the foundations.
+Dynamic programming was the first proposed method and provides the foundational principles.
 
 :::{admonition} Activity
 :class: activity
@@ -21,59 +19,57 @@
 
 ## Policy Iteration
 
-- The algorithm works in two parts:
+The algorithm works in two parts:
 
-  - Policy evaluation (prediction)
-  - Policy improvement
+- Policy evaluation (prediction)
+- Policy improvement
 
 ### Policy Evaluation
 
-- The idea of policy evaluation is to compute the value function $v_\pi$ for a policy $\pi$.
-- Remember the equation from the previous topic:
+The idea of policy evaluation is to compute the value function $v_\pi$ for a policy $\pi$.
+Remember the equation from the previous topic:
 
 $$
 v_\pi(s) = \sum_a\pi(a|s)\sum_{s'}p(s'|s,a)\left[ r(s,a) + \gamma v_\pi(s') \right]
 $$
 
-- It is possible to calculate this equation by iterative methods.
+It is possible to calculate this equation by iterative methods.
 
-  - Consider a sequence of approximate value functions $v_0, v_1, v_2, \dots$.
-  - We initialize $v_0$ with an initial value and the goal state to $0$.
-  - Each successive approximation is calculated as defined above:
+- Consider a sequence of approximate value functions $v_0, v_1, v_2, \dots$.
+- We initialize $v_0$ with an initial value and the goal state to $0$.
+- Each successive approximation is calculated as defined above:
 
-  $$
-  v_{k+1}(s) = \sum_a\pi(a|s)\sum_{s'}p(s'|s,a)\left[ r(s,a) + \gamma v_k(s') \right]
-  $$
+$$
+v_{k+1}(s) = \sum_a\pi(a|s)\sum_{s'}p(s'|s,a)\left[ r(s,a) + \gamma v_k(s') \right]
+$$
 
-  - This update function will converge to $v_\pi$ as $k \rightarrow \infty$.
+- This update function will converge to $v_\pi$ as $k \rightarrow \infty$.
 
-- Of course at each step you need to calculate $v_k(s)$ for every state $s \in S$.
+Of course at each step you need to calculate $v_k(s)$ for every state $s \in S$. Put in an algorithm we obtain:
 
-- Put in an algorithm we obtain:
+`````{prf:algorithm} Policy Evaluation
+:label: policy_evaluation
 
-::::{admonition} Algorithm
-:class: algorithm
-
-:::{figure} policy_evaluation.png
+````{figure} policy_evaluation.png
 :align: center
-:::
-::::
+````
+`````
 
-::::{admonition} Example
-:class: example
+````{prf:example}
+:label: policy-evaluation
 
-- We will consider the following problem, initial policy, and initial value function.
+We will consider the following problem, initial policy, and initial value function.
 
-:::{figure} img/problem.drawio.png
+```{figure} img/problem.drawio.png
 :align: center
-:::
+```
 
 - Now we estimate the value function using the formula.
 
-:::{figure} img/value_estimation.drawio.png
+```{figure} img/value_estimation.drawio.png
 :align: center
-:::
-::::
+```
+````
 
 ### Policy Improvement
 
@@ -93,26 +89,24 @@ $$
 
 - Then we can compare the value obtain with the one in the current value function.
 
-:::{admonition} Policy improvement theorem
-:class: definition
+```{prf:theorem} Policy improvement
+:label: policy_improvement
 
-- Let $\pi$ and $\pi'$ being any pair of deterministic policies such that, for all $s\in S$,
+Let $\pi$ and $\pi'$ being any pair of deterministic policies such that, for all $s\in S$,
 
 $$
 q_\pi (s,\pi'(s))\geq v_\pi(s)
 $$
 
-- Then the policy $\pi'$ must be as good as, or better than $\pi$.
-- That is, it must obtain greater or equal expected return from all states $s\in S$:
+Then the policy $\pi'$ must be as good as, or better than $\pi$.
+That is, it must obtain greater or equal expected return from all states $s\in S$:
 
 $$
 v_{\pi'}(s) \geq v_\pi(s)
 $$
-:::
+```
 
-- The intuition is that if, for a policy, we change only the action for a state $s$, then the changed policy is indeed better.
-- Now, we just need to apply this to all states.
-- Each time we select the action that seems better according to $q_\pi(s,a)$:
+The intuition is that if we change the action for a state $s$ within a policy, the modified policy will be better. To find the optimal policy, we need to apply this change to all states. Each time, we select the action that appears better according to $q_\pi(s,a)$.
 
 $$
 \begin{aligned}
@@ -122,78 +116,68 @@ $$
 \end{aligned}
 $$
 
-- This greedy method respect the policy improvement theorem.
+This greedy method respect the policy improvement theorem.
 
 ### Policy Iteration Algorithm
 
-- The policy iteration algorithm combines the two previous steps.
+The policy iteration algorithm combines the two previous steps. It calculates the optimal policy by executing the previous steps multiple time:
 
-- It calculates the optimal policy by executing the previous steps multiple time:
+1. Evaluate a policy
+2. Improve the policy
+3. If the policy changed go to step 1.
 
-  1. Evaluate a policy
-  2. Improve the policy
-  3. If the policy changed go to step 1.
+MDPs has a finite number of policies, so it will converge to the optimal policy.
 
-- MDPs has a finite number of policies, so it will converge to the optimal policy.
+The complete algorithm is:
 
-- The complete algorithm is:
+````{prf:algorithm} Policy Iteration
+:label: policy_iteration
 
-::::{admonition} Policy Iteration
-:class: algorithm
-
-:::{figure} policy_iteration.png
+```{figure} policy_iteration.png
 :align: center
-:::
-::::
+```
+````
 
-::::{admonition} Example
+````{admonition} Example
 :class: example
 
-- Following the previous example, we can apply policy iteration.
+Following the previous example, we can apply policy iteration.
 
-:::{figure} img/policy _iteration.drawio.png
+```{figure} img/policy _iteration.drawio.png
 :align: center
-:::
-::::
+```
+````
 
-:::{admonition} Activity
+```{admonition} Activity
 :class: activity
 
-- Suggest possible drawback of this method.
-:::
+Suggest possible drawback of this method.
+```
 
 ## Value Iteration
 
-- Considering the issue with Policy Iteration, we could come up with another algorithm.
+Considering the issue with Policy Iteration, we could come up with another algorithm. It is possible to only consider a one-step policy evaluation.
 
-- It is possible to only consider a one-step policy evaluation.
+This algorithm is **Value Iteration**.
 
-- This algorithm is **Value Iteration**.
+- It proposes to do only one step evaluation combined with policy improvement.
+- We obtain the following formula:
 
-  - It proposes to do only one step evaluation combined with policy improvement.
-  - We obtain the following formula:
+$$
+\begin{aligned}
+v_{k+1}(s) &= \max_a \mathbb{E}\left[ r_{t+1} + \gamma v_k(s_k) | s_t = s, a_t = a \right]\\
+&= \max_a\sum_{s'}p(s'|s,a)\left[ r(s,a) + \gamma v_k(s') \right]\\
+\end{aligned}
+$$
 
-  $$
-  \begin{aligned}
-  v_{k+1}(s) &= \max_a \mathbb{E}\left[ r_{t+1} + \gamma v_k(s_k) | s_t = s, a_t = a \right]\\
-  &= \max_a\sum_{s'}p(s'|s,a)\left[ r(s,a) + \gamma v_k(s') \right]\\
-  \end{aligned}
-  $$
+It updates the value function, but we lose our stopping criteria. As it can take an infinite number of steps to converge to the optimal value function, we need to define when to stop. In practice, we fix a small value, and when the value function change by less than this value we stop.
 
-- It updates the value function, but we lose our stopping criteria.
+````{prf:algorithm} Value Iteration
+:label: value_iteration
 
-- As it can take an infinite number of steps to converge to the optimal value function, we need to define when to stop.
-
-- In practice, we fix a small value, and when the value function change by less than this value we stop.
-
-- The complete algorithm is:
-
-::::{admonition} Value Iteration
-:class: algorithm
-
-:::{figure} value_iteration.png
+```{figure} value_iteration.png
 :align: center
-:::
-::::
+```
+````
 
-- This algorithm converge faster than policy iterations.
+This algorithm converge faster than policy iterations.
