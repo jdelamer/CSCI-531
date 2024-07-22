@@ -9,4 +9,4 @@ dependencies:
   - pip:
     - pytorch
     - jupyter-book
-    - stabe;-baselines3
+    - stable-baselines3

@@ -193,6 +193,7 @@ Reinforcement learning algorithms achieve this by implementing a **value functio
 - Value functions are closely tied to **policies**.
 
 ```{prf:definition} Policy
+:label: policy_formal
 
 A policy is a mapping from states to probabilities of each possible action.
 ```
@@ -204,6 +205,7 @@ We denote a policy $\pi$ and the probability that the agent following a policy $
 ```
 
 ```{prf:definition} Value function
+:label: value_function-formal
 
 The value function of a state $s$ under a policy $\pi$ is the expected return when starting in $s$ and following $\pi$ thereafter.
 ```
