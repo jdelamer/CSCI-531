@@ -1,21 +1,13 @@
 # Monte Carlo Methods
 
-- Dynamic programming is a method to calculate the optimal policies.
-
-- One issue with dynamic programming is that it requires complete knowledge about the environment.
-
-- In some problems we don't assume complete knowledge.
-
-- To calculate a policy without this knowledge, the agent can only use its **experience**.
-
-  - The experience comes from the interaction of the agent with the environment.
+Dynamic programming is a method to calculate the optimal policies of a MDP. One issue with is that it requires complete knowledge about the environment, but in some problems we don't assume complete knowledge and we call them **Model-Free** problems. To calculate a policy without this knowledge, the agent can only use its **experience**. The experience comes from the interaction of the agent with the environment.
 
 :::{figure} ./img/trajectory.drawio.png
 :align: center
 :::
 
 :::{important}
-- A model is still required, but a full transition function is not.
+A model is still required, but a full transition function is not.
 :::
 
 ## Monte Carlo Prediction
