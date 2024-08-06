@@ -94,7 +94,7 @@ In most cases, the discount rate $\gamma$ is around 0.9.
 :::
 ::::
 
-Following the same example, if we keep receving a reward of $10$ with a discount rate $\gamma=0.5$. After $10$ steps the discounted reward is close to $0$. 
+Following the same example, if we keep receiving a reward of $10$ with a discount rate $\gamma=0.5$. After $10$ steps the discounted reward is close to $0$. 
 
 ```{code-cell} ipython3
 import matplotlib.pyplot as plt
@@ -246,7 +246,7 @@ v_\pi(s) &= \mathbb{E}_\pi\left[G_t | s_t=s \right]\\
 $$
 
 ```{margin} Bellman equation
-The Bellman equation is dynammic programming applied to MDPs.
+The Bellman equation is dynamic programming applied to MDPs.
 ```
 
 This is the **Bellman equation** applied to $v_t$.

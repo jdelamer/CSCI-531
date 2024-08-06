@@ -180,4 +180,4 @@ It updates the value function, but we lose our stopping criteria. As it can take
 ```
 ````
 
-This algorithm converge faster than policy iterations.
+This algorithm converges faster than policy iterations.

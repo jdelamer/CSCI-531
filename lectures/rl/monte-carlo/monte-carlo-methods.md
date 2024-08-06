@@ -12,24 +12,44 @@ A model is still required, but a full transition function is not.
 
 ## Monte Carlo Prediction
 
+The first issue to solve is how to evaluate the value of a given policy $v_\pi(s)$.
 - The idea is simple:
-
-  - We need to estimate $v_\pi(s)$.
-  - We consider all the trajectories from the initial state to the end state, called **episodes**.
-  - Each occurrence of $s$ in an episode is called a **visit**.
+  - We consider **all** the trajectories from the initial state to the end state, called **episodes**.
+  - Each occurrence of a state $s$ in an episode is called a **visit**.
   - $v_\pi(s)$ is the average of the returns of all the visits to $s$.
 
-- Now we can put that in an algorithm.
+```{important}
+This algorithm converges to $v_\pi(s)$ as the number of visits to $s$ goes to infinity.
+```
 
-::::{admonition} Algorithm
-:class: algorithm
+In practice, a number of episodes $N$ will be chosen based on the problem and how accurate the estimations needs to be. Another modification is when the average is calculated. Instead of calculating the average for each visit of $s$, we only average the returns of the last visit of $s$ in each episode.
 
-:::{figure} ./MC-prediction.png
-:align: center
-:::
-::::
+```{margin} Choosing $N$
+Choosing $N$ can be challenging, it will depend on the problem. The main issue will be the size of the state space and the action space.
+$N$ needs to be large enough, the algorithm can explore as many different trajectories as possible, but not too large so it can be computed in a reasonable time. 
+```
 
-- This algorithm converges to $v_\pi(s)$ as the number of visits to $s$ goes to infinity.
+```{prf:algorithm} Monte Carlo Prediction
+
+
+$\begin{array}{l}
+  \textbf{Inputs}:\ \text{A policy } \pi \text{ to be evaluated}, N\ \text{the number of episodes}\\
+  \textbf{Output}:\ \text{The value function} V_\pi\\
+  \textbf{Initialize}: \\
+  \quad\quad  V_\pi(s) \in \mathbb{R}, \text{arbitrarily, for all } s \in S \\
+  \quad\quad Returns(s) \leftarrow \text{an empty list, for all } s \in S\\ 
+  \textbf{Repeat } \text{for } N \text{ episodes:}\\
+  \quad\quad \text{Generate an episode using } \pi: S_0, A_0, R_1, S_1, R_2, \dots, S_{T-1}, A_{T-1}, R_T\\
+  \quad\quad G \leftarrow 0\\
+  \quad\quad \textbf{Repeat } \text{for each step } t = T-1, T-2, \dots, 0:\\
+  \quad\quad\quad\quad G \leftarrow \gamma G + R_{t+1}\\
+  \quad\quad\quad\quad \textbf{if } S_t \notin S_0, S_1, \dots, S_{t-1}:\\
+  \quad\quad\quad\quad\quad\quad \text{append } G \text{ to } Returns(S_t) \\
+  \quad\quad\quad\quad\quad\quad  V_\pi(s_t) \leftarrow avg(Returns(S_t))
+\end{array}
+$
+
+```
 
 ::::{admonition} Activity
 :class: activity
@@ -49,78 +69,77 @@ A model is still required, but a full transition function is not.
 :::{admonition} Activity
 :class: activity
 
-- How can you apply Monte Carlo methods when you don't have a model?
+How can you apply Monte Carlo methods when you don't have a model?
 :::
 
-- How do we estimate the policy?
-
-  - In this case we apply this method to a state-action pair.
-  - Concretely, we want to estimate $q^*(s,a)$.
-  - We average the returns for each pair state-action.
+It changes the way the policy is estimated. In this case we apply this method to a state-action pair because, we want to estimate $q^*(s,a)$. Thus, we will average the returns for each pair state-action.
 
 :::{admonition} Activity
 :class: activity
 
-- Discuss what problems occur with this method.
+Discuss what problems occur with this method.
 :::
 
-- All the actions need to be visited.
-
-  - It is similar to the multi-armed bandit problem.
-  - Balancing exploration/exploitation.
+Due to this problem, all the actions need to be visited to obtain a good estimate. It is similar to the multi-armed bandit problem in which we were trying to balance exploration and exploitation.
 
 :::{note}
 The methods seen in the multi-armed bandit can be used.
 :::
 
-## Monte Carlo Control
+## Monte Carlo Learning
 
-- We have all the tools to use Monte Carlo methods.
+Estimating the value function of a policy is the only required tool to use Monte Carlo methods. Remember that once we can evaluate a policy we can improve it.
 
-- We can estimate the value function, now we need to improve the policy.
-
-- We consider two types of methods:
-
-  - The **on-policy** control methods.
-  - The **off-policy** control methods.
+We consider two types of methods:
+- The **on-policy** methods.
+- The **off-policy** methods.
 
 ### On-policy Method
 
-- In this method, the agent has a soft policy:
-
-  - It starts with $\pi(a|s) >0$, $\forall s\in S, \forall a\in A$.
-  - Gradually shift to a deterministic optimal policy.
+In this method, the agent has a soft policy:
+- It starts with $\pi(a|s) >0$, $\forall s\in S, \forall a\in A$.
+- Gradually shift to a deterministic optimal policy.
 
 :::{figure} ./img/on-policy_policy.png
 :align: center
 :scale: 35%
 :::
 
-- The one we will see is the $\epsilon$-greedy policy.
+There are many types of soft policies for On-Policy Monte Carlo methods, but the one we will see is the $\epsilon$-greedy policy.
+- Nongreedy actions are given minimal probability of selection $\frac{\epsilon}{|A|}$.
+- The greedy action gets the remaining probability $1 - \epsilon+\frac{\epsilon}{|A|}$.
 
-  - Nongreedy actions are given minimal probability of selection $\frac{\epsilon}{|A|}$.
-  - The greedy action gets the remaining probability $1 - \epsilon+\frac{\epsilon}{|A|}$.
+````{prf:algorithm} $\epsilon$-greedy policy
 
-::::{admonition} Algorithm
-:class: algorithm
+$\begin{array}{l}
+  \textbf{Inputs}:\\ 
+  \quad\quad \text{Small}\ \epsilon > 0 \\
+  \quad\quad N\ \text{number of episodes} \\
+  \textbf{Output}:\ \text{A policy} \pi\\
+  \textbf{Initialize}: \\
+  \quad\quad \pi \rightarrow \text{an arbitrary}\ \epsilon\text{-soft policy}\\
+  \quad\quad Q(s,a) \in \mathbb{R}\ \text{(arbitrary), for all}, s\in S, a\in A\\
+  \quad\quad Returns(s,a) \leftarrow \text{an empty list, for all } s \in S, a\in A\\
+  \textbf{Repeat } \text{for } N \text{ episodes:}\\
+  \quad\quad \text{Generate an episode using } \pi: S_0, A_0, R_1, S_1, R_2, \dots, S_{T-1}, A_{T-1}, R_T\\
+  \quad\quad G \leftarrow 0\\
+  \quad\quad \textbf{Repeat } \text{for each step } t = T-1, T-2, \dots, 0:\\
+  \quad\quad\quad\quad G \leftarrow \gamma G + R_{t+1}\\
+  \quad\quad\quad\quad \textbf{if } S_t \notin S_0, S_1, \dots, S_{t-1}:\\
+  \quad\quad\quad\quad\quad\quad \text{append } G \text{ to } Returns(S_t, A_t) \\
+  \quad\quad\quad\quad\quad\quad Q(S_t,A_t) \leftarrow avg(Returns(S_t, A_t))\\
+  \quad\quad\quad\quad\quad\quad A^* \leftarrow \arg\max_{a} Q(S_t,a)\\
+  \quad\quad\quad\quad\quad\quad \textbf{for all}\ a \in A:\\
+  \quad\quad\quad\quad\quad\quad\quad\quad \pi (a|S_t) \leftarrow \begin{cases} 1-\epsilon + \epsilon /|A| & \text{if}\ a=A^*\\  \epsilon /|A| & \text{if}\ a\neq A^*\end{cases}\\
+\end{array}
+$
+````
 
-:::{figure} ./on-policy.png
-:align: center
-:::
-::::
+This algorithm guarantee that for any $\epsilon$-soft policy $\pi$, any $\epsilon$-greedy with respect to $q_\pi$ is guaranteed to be better than or equal to $\pi$.
 
-:::{admonition} Activity
-:class: activity
+:::{prf:proof}
 
-- Make sure you understand the algorithm.
-:::
-
-- This algorithm guarantee that for any $\epsilon$-soft policy $\pi$, any $\epsilon$-greedy with respect to $q_\pi$ is guaranteed to be better than or equal to $\pi$.
-
-:::{admonition} Proof
-:class: proof
-
-- It is assured by the policy improvement theorem.:
+It is assured by the policy improvement theorem:
 
 $$
 \begin{aligned}
@@ -132,43 +151,34 @@ q_\pi(s, \pi'(s)) &= \sum_{a}\pi'(a|s)q_\pi(s,a)\\
 \end{aligned}
 $$
 
-- Thus, by the policy improvement theorem $\pi'\geq\pi$.
+Thus, by the policy improvement theorem $\pi'\geq\pi$.
 :::
 
-- It achieves the best policy among the $\epsilon$-soft policies.
+```{note} 
+It achieves the best policy among the $\epsilon$-soft policies.
+```
 
 ### Off-policy Monte Carlo methods
 
-- On-policy methods learn action values for a near-optimal policy.
+On-policy methods learn action values for a near-optimal policy, because the exploratory part of the method always generate a small number of less optimal actions.
 
-  - The exploratory part of the methods always generate a small number of less optimal actions.
-
-- Another approach is to use two policies:
-
-  - One that is learned and that becomes the optimal policy.
-  - The other that contains the exploratory component.
-
-- The learned policy is called the **target policy**.
-
-- The other policy is called the **behavior policy**.
+Another approach is to use two policies, one that is learned and that becomes the optimal policy called the **target policy**, and the other that contains the exploratory component called the **behavior policy**.
 
 :::{figure} ./img/off-policy_policies.png
 :align: center
 :scale: 35%
 :::
 
-- We can summaries the two methods as:
+We can summaries the two methods as:
 
-```{eval-rst}
-+------------------+-----------------------------------------------+
+
 | On-Policy        | Off-Policy                                    |
-+------------------+-----------------------------------------------+
-|Generally, simpler| *  Require additional concepts                |
-|                  | *  The data collected is due to another policy|
-|                  | *  Greater variance and slow to converge      |
-|                  | *  More powerful                              |
-+------------------+-----------------------------------------------+
-```
+|:-----------------|----------------------------------------------:|
+|Generally, simpler| Require additional concepts                   |
+|                  | The data collected is due to another policy   |
+|                  | Greater variance and slow to converge         |
+|                  | More powerful                                 |
+
 
 #### Prediction problem
 
@@ -300,7 +310,7 @@ We saw this in the multi-armed bandit!
 
 - We can estimate the value of a policy using an off-policy Monte Carlo method.
 
-- To caulculate the optimal policy using an off-policy method:
+- To calculate the optimal policy using an off-policy method:
 
   - We consider the policy $\pi$ we want to calculate to be a greedy policy.
   - After each update of the value function, we assign the best action to the policy.
