@@ -148,31 +148,46 @@ $
 ````
 
 ```{important}
-If you look closely, we never mention a policy in the algorithm.
+If you look closely, we never mention a policy in the algorithm. The policy can be calculated based on the q-values.
 ```
 
 
 ## Q-Learning: Off-policy TD learning
 
-- The off-policy learning algorithm called **Q-Learning** is old (1989).
-- The update function is:
+The off-policy learning algorithm called **Q-Learning** is old (1989).
+
+The update function is:
 
 $$
 q(s_t, a_t) = q(s_t, a_t) + \alpha\left[ r_{t+1} + \gamma\max_{a'} q(s_{t+1}, a')- q(s_t, a_t) \right]
 $$
 
-- In this case it approximates $q^*$.
+In this case it approximates $q^*$.
 
-::::{admonition} Q-Learning Algorithm
-:class: algorithm
+````{prf:algorithm} Q-Learning
+:label: alg:q-learning
 
-:::{figure} ./q-learning.png
-:align: center
-:::
-::::
+$
+\begin{array}{l}
+\textbf{Inputs}:\\
+\quad\quad N\ \text{the number of episodes}\\
+\quad\quad \alpha\in 0, 1\ \text{the step size}\\
+\textbf{Initialize}: \\
+\quad\quad  Q(s, a) \in \mathbb{R}, \text{arbitrarily, for all } s \in S, a\in A,\ \text{except}\ Q(terminal,.)=0 \\
+\textbf{Repeat}\ \text{for}\ N\ \text{episodes:}\\
+\quad\quad \textbf{Intialize}\ s\\
+\quad\quad \textbf{Repeat}\ \text{for each step until} s=terminal:\\
+\quad\quad\quad\quad a\leftarrow Q(s,.)\ \text{(using }\epsilon\text{-greedy)}\\
+\quad\quad\quad\quad r, s' \leftarrow \text{Execute a}\\
+\quad\quad\quad\quad Q(s,a) \leftarrow Q(s,a)+\alpha \left[r + \gamma \max_{a'}Q(s',a') - Q(s,a)\right]\\
+\quad\quad\quad\quad s\leftarrow s'\\
+\end{array}
+$
+
+````
 
 :::{admonition} Activity
 :class: activity
 
-- Discuss the difference between these two algorithms.
+What is the difference between these two algorithms?
 :::
