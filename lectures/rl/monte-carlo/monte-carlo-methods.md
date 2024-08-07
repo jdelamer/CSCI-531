@@ -298,13 +298,29 @@ We saw this in the multi-armed bandit!
 
 - We can now write an algorithm:
 
-::::{admonition} Off policy prediction algorithm
-:class: algorithm
-
-:::{figure} ./off-policy.png
-:align: center
-:::
-::::
+```{prf:algorithm} Off policy prediction
+$
+\begin{array}{l}
+  \textbf{Inputs}:\\
+  \quad\quad \text{A target policy } \pi \text{ to be evaluated}\\
+  \quad\quad N\ \text{the number of episodes}\\
+  \textbf{Output}:\ \text{The value function} V_\pi\\
+  \textbf{Initialize}: \\
+  \quad\quad  Q(s,a) \in \mathbb{R}, \text{arbitrarily, for all } s \in S, \text{for all}\ a \in A\\
+  \quad\quad C(s, a) \leftarrow 0\\
+  \textbf{Repeat}\ \text{for}\ N\ \text{episodes:}\\
+  \quad\quad b \leftarrow \text{any policy with coverage of}\ \pi\\
+  \quad\quad \text{Generate an episode using } \pi: S_0, A_0, R_1, S_1, R_2, \dots, S_{T-1}, A_{T-1}, R_T\\
+  \quad\quad G \leftarrow 0\\
+  \quad\quad W \leftarrow 1\\
+  \quad\quad \textbf{Repeat } \text{for each step } t = T-1, T-2, \dots, 0\ \textbf{and}\ W\neq 0:\\
+  \quad\quad\quad\quad G \leftarrow \gamma G + R_{t+1}\\
+  \quad\quad\quad\quad C(S_t, A_t) \leftarrow C(S_t,A_t) + W\\
+  \quad\quad\quad\quad Q(S_t, A_t) \leftarrow Q(S_t,A_t) + \frac{W}{C(S_t,A_t)}\left[G - Q(S_t,A_t)\right]\\
+  \quad\quad\quad\quad W \leftarrow W + \frac{\pi (A_t|S_t)}{b(A_t|S_t)}\\
+\end{array}
+$
+```
 
 #### Off-policy control
 
@@ -317,10 +333,28 @@ We saw this in the multi-armed bandit!
 
 - The algorithm can be written as:
 
-::::{admonition} Algorithm
-:class: algorithm
-
-:::{figure} ./off-policy-control.png
-:align: center
-:::
-::::
+```{prf:algorithm} Off policy control
+$
+\begin{array}{l}
+  \textbf{Inputs}:\\
+  \quad\quad N\ \text{the number of episodes}\\
+  \textbf{Output}:\ \text{A policy}\ \pi\\
+  \textbf{Initialize}: \\
+  \quad\quad  Q(s,a) \in \mathbb{R}, \text{arbitrarily, for all } s \in S, \text{for all}\ a \in A\\
+  \quad\quad C(s, a) \leftarrow 0\\
+  \quad\quad \pi(s) \leftarrow \arg\max_a Q(s,a)\\
+  \textbf{Repeat}\ \text{for}\ N\ \text{episodes:}\\
+  \quad\quad b \leftarrow \text{any policy with coverage of}\ \pi\\
+  \quad\quad \text{Generate an episode using } \pi: S_0, A_0, R_1, S_1, R_2, \dots, S_{T-1}, A_{T-1}, R_T\\
+  \quad\quad G \leftarrow 0\\
+  \quad\quad W \leftarrow 1\\
+  \quad\quad \textbf{Repeat } \text{for each step } t = T-1, T-2, \dots, 0\ \textbf{and}\ W\neq 0:\\
+  \quad\quad\quad\quad G \leftarrow \gamma G + R_{t+1}\\
+  \quad\quad\quad\quad C(S_t, A_t) \leftarrow C(S_t,A_t) + W\\
+  \quad\quad\quad\quad Q(S_t, A_t) \leftarrow Q(S_t,A_t) + \frac{W}{C(S_t,A_t)}\left[G - Q(S_t,A_t)\right]\\
+  \quad\quad\quad\quad \pi(S_t) \leftarrow \arg\max_a Q(S_t,a)\\
+  \quad\quad\quad\quad \textbf{If} A_t \neq \pi(S_t)\ \textbf{Then}\text{ exit inner loop (procceed to next episode)}\\
+  \quad\quad\quad\quad W \leftarrow W + \frac{\pi (A_t|S_t)}{b(A_t|S_t)}\\
+\end{array}
+$
+```
