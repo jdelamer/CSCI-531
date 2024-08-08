@@ -138,7 +138,7 @@ $
 \quad\quad a\leftarrow Q(s,.)\ \text{(using }\epsilon\text{-greedy)}\\
 \quad\quad \textbf{Repeat}\ \text{for each step until} s=terminal:\\
 \quad\quad\quad\quad r, s' \leftarrow \text{Execute a}\\
-\quad\quad\quad\quad a'\leftarrow Q(s,.)\ \text{(using }\epsilon\text{-greedy)}\\
+\quad\quad\quad\quad a'\leftarrow Q(s',.)\ \text{(using }\epsilon\text{-greedy)}\\
 \quad\quad\quad\quad Q(s,a) \leftarrow Q(s,a)+\alpha \left[r + \gamma Q(s',a') - Q(s,a)\right]\\
 \quad\quad\quad\quad s\leftarrow s'\\
 \quad\quad\quad\quad a\leftarrow a'\\
