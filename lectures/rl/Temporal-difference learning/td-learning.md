@@ -1,6 +1,6 @@
 # Temporal-Difference Learning
 
-We covered the fundamentals to understand reinforcement learning. One central methods for reinforcement learning is called **Temporal-Difference** (TD) learning.TD learning is composed of dynamic programming and Monte Carlo methods.
+We covered the fundamentals to understand reinforcement learning. One central methods for reinforcement learning is called **Temporal-Difference** (TD) learning. TD learning is composed of dynamic programming and Monte Carlo methods.
 
 ## TD Prediction
 

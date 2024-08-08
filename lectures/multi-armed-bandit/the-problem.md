@@ -183,16 +183,19 @@ NewEstimate \leftarrow OldEstimate + StepSize\left[Target-OldEstimate\right]
 ````{prf:algorithm} $k$-armed Algorithm
 :label: k-armed-algorithm
 
-***Input*** Given a multi-armed bandit *Bandit* 
-
-Initialize, for $a = 1$ to $k$:
-  - $Q(a) \leftarrow 0$
-  - $N(a) \leftarrow 0$
-
-Loop forever:
-  - $A \leftarrow \begin{cases} \arg\max_a Q(a) \quad \text{with probability } 1-\epsilon \\ \text{random action} \quad \text{with probability } \epsilon \end{cases}$
-  - $R \leftarrow N(a) + 1$
-  - $Q(a) \leftarrow Q(a) + \frac{1}{N(a)} \left[ R - Q(a) \right]$
+$
+\begin{array}{l}
+\textbf{Input}\text{: A multi-armed bandit}\\
+\textbf{Initialize}: \\
+\textbf{For}\ a = 1\ \text{to}\ k:\\
+\quad\quad Q(a) \leftarrow 0\\
+\quad\quad N(a) \leftarrow 0\\
+\textbf{Loop forever}:\\
+\quad\quad A \leftarrow \begin{cases} \arg\max_a Q(a) \quad \text{with probability } 1-\epsilon \\ \text{random action} \quad \text{with probability } \epsilon \end{cases}\\
+\quad\quad R \leftarrow N(a) + 1\\
+\quad\quad Q(a) \leftarrow Q(a) + \frac{1}{N(a)} \left[ R - Q(a) \right]\\
+\end{array}
+$
 
 ````
 

@@ -47,13 +47,27 @@ $$
 
 Of course at each step you need to calculate $v_k(s)$ for every state $s \in S$. Put in an algorithm we obtain:
 
-`````{prf:algorithm} Policy Evaluation
+````{prf:algorithm} Policy Evaluation
 :label: policy_evaluation
 
-````{figure} policy_evaluation.png
-:align: center
+$
+\begin{array}{l}
+\textbf{Inputs}:\\
+\quad\quad \pi\ \text{the policy to evaluate}\\
+\quad\quad \theta\ \text{A threshold}\\
+\textbf{Initialize}: \\
+\quad\quad  V(s) \in \mathbb{R}, \text{arbitrarily, for all } s \in S,\ \text{except}\ V(terminal)=0 \\
+\textbf{Loop}:\\
+\quad\quad \Delta\leftarrow 0\\
+\quad\quad \textbf{Foreach}\ s\in S:\\
+\quad\quad\quad\quad v \leftarrow V(s)\\
+\quad\quad\quad\quad V(s) \leftarrow \sum_a\pi (a|s)\sum_{s'\in S}p(s'|s,a)\left[r + \gamma V(s')\right]\\
+\quad\quad\quad\quad \Delta \leftarrow \max (\Delta, |v-V(s)|)\\
+\textbf{until}\ \Delta < \theta\\
+\end{array}
+$
+
 ````
-`````
 
 ````{prf:example}
 :label: policy-evaluation
@@ -133,9 +147,30 @@ The complete algorithm is:
 ````{prf:algorithm} Policy Iteration
 :label: policy_iteration
 
-```{figure} policy_iteration.png
-:align: center
-```
+$
+\begin{array}{l}
+\textbf{Inputs}:\\
+\quad\quad \theta\ \text{A threshold}\\
+\textbf{Initialize}: \\
+\quad\quad V(s)\in \mathbb{R}, \text{and}\ \pi(s)\in A \text{arbitrarily for all}\ s\in S\\
+\textbf{2. Policy Evaluation}\\
+\textbf{Loop}:\\
+\quad\quad \Delta\leftarrow 0\\
+\quad\quad \textbf{Foreach}\ s\in S:\\
+\quad\quad\quad\quad v \leftarrow V(s)\\
+\quad\quad\quad\quad V(s) \leftarrow \sum_a\pi (a|s)\sum_{s'\in S}p(s'|s,a)\left[r + \gamma V(s')\right]\\
+\quad\quad\quad\quad \Delta \leftarrow \max (\Delta, |v-V(s)|)\\
+\textbf{until}\ \Delta < \theta\\
+\textbf{3. Policy Improvement}\\
+policy-stable\leftarrow true\\
+\textbf{Foreach}\ s\in S:\\
+\quad\quad old-action\leftarrow \pi(s)
+\quad\quad \pi(s)\leftarrow \arg\max_a\sum_{s'}p(s'|s,a)\left[r+\gamma V(s')\right]\\
+\quad\quad \textbf{If}\ old-action \neq \pi(s),\textbf(Then)\ policy-stable\leftarrow false\\
+\textbf{If} policy-stable\ \textbf{Then}\text{stop, or go to 2.}
+\end{array}
+$
+
 ````
 
 ````{admonition} Example
