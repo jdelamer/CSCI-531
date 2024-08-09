@@ -17,8 +17,8 @@ parts:
     chapters:
     - file: lectures/rl/monte-carlo/monte-carlo-methods
     - file: lectures/rl/Temporal-difference learning/td-learning
-    - file: lectures/rl/approximate-solutions/on-policy-prediction
     - file: code/TD
+    - file: lectures/rl/approximate-solutions/on-policy-prediction
     - file: lectures/rl/eligibility-traces/eligibility-traces
     - file: lectures/rl/policy-gradient/policy-gradient-methods
   - caption: Reference
