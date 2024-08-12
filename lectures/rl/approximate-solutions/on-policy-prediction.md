@@ -344,77 +344,66 @@ $
 
 ## Function Approximation
 
-- If you remember, we said that $\mathbf{w}\in \mathbb{R}^d$ of dimension smaller that the number of states.
+We said that $\mathbf{w}\in \mathbb{R}^d$ of dimension smaller that the number of states, so it means that we don't have a direct mapping from $(s,a)\mapsto q_\pi(s,a)$. 
 
-- So it means that we don't have a direct mapping fron $(s,a)\mapsto q_\pi(s,a)$.
+We need a function approximation for $\hat{v}(.,\mathbf{w})$. Troughout the litterature you can find different methods:
 
-- We need a function approximation.
-
-- There are multiple types of approximation that we can use:
-
-  - State-aggregation
-  - Linear function
-  - Neural networks
-  - Etc.
+- State-aggregation
+- Linear function
+- Neural networks
+- Etc.
 
 ### State-aggregation
 
-- It is the simplest one.
-- You split the states in groups that should be similar enough.
-- Then the value function will assign the same value for the states in the same group.
-- Works for very simple problems.
+It is the simplest one, as you split the states in groups that should be similar enough. Then the value function will assign the same value for the states in the same group.
+
+It works for very simple problems, but it becomes limited very quickly.
 
 ### Linear Function
 
-- One of the most important special cases of function approximation.
-- The approximate function $\hat{v}(.,\mathbf{w})$ is a linear function of $\mathbf{w}$.
-- To every state $s$, there is a real-valued vector $\mathbf{x}(s) = (x_1(s0), x_2(s),\dots, x_d(s))^T$.
-- Linear methods approximate the state-value function by the inner product between $\mathbf{w}$ and $\mathbf{x}(s)$:
+One of the most important special cases of function approximation. The approximate function $\hat{v}(.,\mathbf{w})$ is a linear function of $\mathbf{w}$. Concretely, for every state $s$, there is a real-valued vector $\mathbf{x}(s) = (x_1(s0), x_2(s),\dots, x_d(s))^T$.
+
+Linear methods approximate the state-value function by the inner product between $\mathbf{w}$ and $\mathbf{x}(s)$:
 
 $$
 \hat{v}(s, \mathbf{w}) = \mathbf{w}^T\mathbf{x}(s) = \sum_{i=1}^d w_ix_i(s)
 $$
 
-- The vector $\mathbf{x}(s)$ is called a feature vector representing state $s$.
-- It is interesting in stochastic gradient descent, because the gradient is simply:
+The vector $\mathbf{x}(s)$ is called a **feature** vector representing state $s$.
+
+It is useful in stochastic gradient descent, because the gradient is simply:
 
 $$
 \nabla \hat{v}(s,\mathbf{w}) = \mathbf{x}(s)
 $$
 
-- Thus the update in the linear case, just becomes:
+Meaning the update in the linear case, just becomes:
 
 $$
 \mathbf{w}_{t+1} = \mathbf{w}_t + \alpha\left[ U_t - \hat{v}(s,\mathbf{w}) \right]\mathbf{x}(s_t)
 $$
 
-### Feature Construction for Linear Methods
+#### Feature Construction for Linear Methods
 
-- Linear methods are powerful and efficient, but they depend mainly on how the states are represented in terms of features.
-- A limitation of the linear form is that it cannot take into account any interactions between features.
+Linear methods are powerful and efficient, but they depend mainly on how the states are represented in terms of features. A limitation of the linear form is that it cannot take into account any interactions between features.
 
 :::{admonition} Activity
 :class: activity
 
-- Give some examples of problems where we would like to know the interaction of two features.
+Give some examples of problems where we would like to know the interaction of two features.
 :::
 
-- We would need the combination of these two features in another feature.
-- Polynomial functions are a simple way to do that.
+We would need the combination of these two features in another feature. Polynomial functions are a simple way to do that.
 
-:::{admonition} Example
-:class: example
+```{prf:example} Polynomial functions
+:label: ex:poly-approximation
 
-- Suppose a reinforcement learning problem has states with two numerical dimensions.
+Suppose a reinforcement learning problem has states with two numerical dimensions. A state will be represented by two values: $s_1\in \mathbb{R}$ and $s_2\in \mathbb{R}$.
 
-- A state will be represented by two values: $s_1\in \mathbb{R}$ and $s_2\in \mathbb{R}$.
+You could be tempted to use a 2D feature vector $\mathbf{x}(s) = [s_1, s_2]^T$.
 
-- You could be tempted to use a 2D feature vector $\mathbf{x}(s) = [s_1, s_2]^T$.
+- With this representation the interaction between $s_1$ and $s_2$ cannot be represented.
+- Also, if $s_1 = s_2 = 0$, the approximation would always be 0.
 
-  - With this representation the interaction between $s_1$ and $s_2$ cannot be represented.
-  - Also, if $s_1 = s_2 = 0$, the approximation would always be 0.
-
-- It can be solved by adding some features: $\mathbf{x}(s) = [1, s_1, s_2, s_1s_2]^T$
-
-- Or even add more dimensions: $\mathbf{x}(s) = [1, s_1, s_2, s_1s_2, s_1^2,s_2^2,s_1^2s_2,s_1s_2^2,s_1^2s_2^2]^T$.
-:::
+It can be solved by adding some features: $\mathbf{x}(s) = [1, s_1, s_2, s_1s_2]^T$, or even add more dimensions: $\mathbf{x}(s) = [1, s_1, s_2, s_1s_2, s_1^2,s_2^2,s_1^2s_2,s_1s_2^2,s_1^2s_2^2]^T$.
+```
