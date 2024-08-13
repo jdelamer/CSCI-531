@@ -171,7 +171,7 @@ $
 \begin{array}{l}
 \textbf{Inputs}:\\
 \quad\quad N\ \text{the number of episodes}\\
-\quad\quad \alpha\in 0, 1\ \text{the step size}\\
+\quad\quad \alpha\in [0, 1]\ \text{the step size}\\
 \textbf{Initialize}: \\
 \quad\quad  Q(s, a) \in \mathbb{R}, \text{arbitrarily, for all } s \in S, a\in A,\ \text{except}\ Q(terminal,.)=0 \\
 \textbf{Repeat}\ \text{for}\ N\ \text{episodes:}\\
