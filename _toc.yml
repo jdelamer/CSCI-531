@@ -23,6 +23,9 @@ parts:
   - caption: Assignments
     chapters:
     - file: asn/cliffwalking
+  - caption: Outline
+    chapters:
+    - file: outline
   - caption: Reference
     chapters:
     - file: glossary
