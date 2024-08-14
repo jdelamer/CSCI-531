@@ -10,3 +10,15 @@ Dr. Jean-Alexis Delamer
 
 * jdelamer at stfx.ca
 * Annex 9C
+
+## Class time
+
+* Tue: 12:30pm -  1:20pm
+* Thu: 11:30am - 12:20pm
+* Fri:  1:30pm -  2:20pm
+
+## Office hours
+
+* Tue: 10:30am - 11:30am
+* Thu: 10:00am - 11:00am
+* Fri:  9:00am - 10:00am

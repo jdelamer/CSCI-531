@@ -20,6 +20,9 @@ parts:
     - file: code/TD
     - file: lectures/rl/approximate-solutions/on-policy-prediction
     - file: lectures/rl/policy-gradient/policy-gradient-methods
+  - caption: Assignments
+    chapters:
+    - file: asn/cliffwalking
   - caption: Reference
     chapters:
     - file: glossary
