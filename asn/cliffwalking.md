@@ -227,9 +227,9 @@ def run(env, pi):
     - The function should execute `run(env, pi)` N times and returns the average cumulative reward.
 3. Calculate two policies:
     - One policy with `is_slippery = False`, called `pi_false`.
-    - One policy with `is_slippery = True`, called `pi_false`.
+    - One policy with `is_slippery = True`, called `pi_true`.
 4. Policy evaluation
-    - Evaluate `pi_false` and `pi_false`.
+    - Evaluate `pi_false` and `pi_true`.
     - A small paragraph about the difference between both policies and why the values are different.
 
 ## Submission
