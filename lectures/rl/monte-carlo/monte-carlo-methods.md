@@ -7,22 +7,23 @@ Dynamic programming is a method to calculate the optimal policies of a MDP. One 
 :::
 
 :::{important}
-A model is still required, but a full transition function is not.
+Although a model is still necessary for interaction, a full transition function is not required to perform Monte Carlo methods.
 :::
 
 ## Monte Carlo Prediction
 
-The first issue to solve is how to evaluate the value of a given policy $v_\pi(s)$.
-- The idea is simple:
-  - We consider **all** the trajectories from the initial state to the end state, called **episodes**.
-  - Each occurrence of a state $s$ in an episode is called a **visit**.
-  - $v_\pi(s)$ is the average of the returns of all the visits to $s$.
+The first step in understanding Monte Carlo methods is to evaluate the value of a given policy, denoted as $v_\pi(s)$. 
+
+### Key Idea
+- The idea is to use **episodes** (sequences of states and actions from start to a terminal state) to estimate the value function.
+- Every time a state $s$ appears in an episode, it's called a **visit**.
+- $v_\pi(s)$ is calculated as the average return (total accumulated reward) of all visits to state $s$ across multiple episodes.
 
 ```{important}
-This algorithm converges to $v_\pi(s)$ as the number of visits to $s$ goes to infinity.
+The Monte Carlo prediction algorithm is guaranteed to converge to the true value $v_\pi(s)$ as the number of visits to state $s$ approaches infinity.
 ```
 
-In practice, a number of episodes $N$ will be chosen based on the problem and how accurate the estimations needs to be. Another modification is when the average is calculated. Instead of calculating the average for each visit of $s$, we only average the returns of the last visit of $s$ in each episode.
+In practice, a finite number of episodes, $N$, is used to approximate $v_\pi(s)$. Additionally, instead of averaging returns for every visit to a state, a common approach is to only average the returns from the **first visit** of each state in an episode. This is called **First-Visit Monte Carlo**; alternatively, considering every visit is known as **Every-Visit Monte Carlo**.
 
 ```{margin} Choosing $N$
 Choosing $N$ can be challenging, it will depend on the problem. The main issue will be the size of the state space and the action space.
@@ -60,8 +61,8 @@ $
 :align: center
 :::
 
-- We can see that one state is visited twice.
-- How do you calculate the return $G$ for this state?
+- In this episode, one state is visited twice.
+- Calculate the return $G$ for this state for both the first and every visit.
 ::::
 
 ## Mont Carlo Estimation of Action Values
@@ -83,22 +84,22 @@ Discuss what problems occur with this method.
 Due to this problem, all the actions need to be visited to obtain a good estimate. It is similar to the multi-armed bandit problem in which we were trying to balance exploration and exploitation.
 
 :::{note}
-The methods seen in the multi-armed bandit can be used.
+Techniques from multi-armed bandit problems, such as $\epsilon$-greedy strategies, can be applied to balance exploration and exploitation.
 :::
 
 ## Monte Carlo Learning
 
-Estimating the value function of a policy is the only required tool to use Monte Carlo methods. Remember that once we can evaluate a policy we can improve it.
+Monte Carlo methods not only estimate the value function but also allow for **policy improvement**. Once we evaluate a policy, we can improve it iteratively.
 
-We consider two types of methods:
-- The **on-policy** methods.
-- The **off-policy** methods.
+### On-Policy vs. Off-Policy
+There are two primary approaches to learning with Monte Carlo:
+
+1. **On-policy methods**: The agent learns the value of the policy it is currently following.
+2. **Off-policy methods**: The agent learns the value of a different policy (called the target policy) while following a separate behavior policy for exploration.
 
 ### On-policy Method
 
-In this method, the agent has a soft policy:
-- It starts with $\pi(a|s) >0$, $\forall s\in S, \forall a\in A$.
-- Gradually shift to a deterministic optimal policy.
+An on-policy agent uses a **soft policy** (a policy that has non-zero probabilities for all actions) and gradually shifts toward a deterministic, optimal policy.
 
 :::{figure} ./img/on-policy_policy.png
 :align: center
@@ -158,7 +159,7 @@ Thus, by the policy improvement theorem $\pi'\geq\pi$.
 It achieves the best policy among the $\epsilon$-soft policies.
 ```
 
-### Off-policy Monte Carlo methods
+### Off-policy methods
 
 On-policy methods learn action values for a near-optimal policy, because the exploratory part of the method always generate a small number of less optimal actions.
 
@@ -339,12 +340,13 @@ $
 ```
 ## Summary
 
-We can summaries the two methods as:
+Here is a comparison of On-Policy and Off-Policy Monte Carlo methods:
 
+| **On-Policy**        | **Off-Policy**                                    |
+|:---------------------|--------------------------------------------------:|
+| Generally simpler    | Requires additional concepts such as importance sampling |
+| Policy is evaluated and improved simultaneously | Uses data generated by a different policy (behavior policy) |
+| Converges faster but explores less broadly | Greater variance and slower convergence due to importance sampling |
+| Less powerful but easier to implement | More powerful and can use any exploratory behavior |
 
-| On-Policy        | Off-Policy                                    |
-|:-----------------|----------------------------------------------:|
-|Generally, simpler| Require additional concepts                   |
-|                  | The data collected is due to another policy   |
-|                  | Greater variance and slow to converge         |
-|                  | More powerful                                 |
+By understanding and applying these Monte Carlo techniques, agents can learn optimal policies in model-free environments through experience, enabling them to adapt to dynamic and complex scenarios.
