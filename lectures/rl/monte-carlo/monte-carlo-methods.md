@@ -301,7 +301,7 @@ $
   \quad\quad\quad\quad G \leftarrow \gamma G + R_{t+1}\\
   \quad\quad\quad\quad C(S_t, A_t) \leftarrow C(S_t,A_t) + W\\
   \quad\quad\quad\quad Q(S_t, A_t) \leftarrow Q(S_t,A_t) + \frac{W}{C(S_t,A_t)}\left[G - Q(S_t,A_t)\right]\\
-  \quad\quad\quad\quad W \leftarrow W + \frac{\pi (A_t|S_t)}{b(A_t|S_t)}\\
+  \quad\quad\quad\quad W \leftarrow W \times \frac{\pi (A_t|S_t)}{b(A_t|S_t)}\\
 \end{array}
 $
 ```
@@ -334,7 +334,7 @@ $
   \quad\quad\quad\quad Q(S_t, A_t) \leftarrow Q(S_t,A_t) + \frac{W}{C(S_t,A_t)}\left[G - Q(S_t,A_t)\right]\\
   \quad\quad\quad\quad \pi(S_t) \leftarrow \arg\max_a Q(S_t,a)\\
   \quad\quad\quad\quad \textbf{If} A_t \neq \pi(S_t)\ \textbf{Then}\text{ exit inner loop (procceed to next episode)}\\
-  \quad\quad\quad\quad W \leftarrow W + \frac{\pi (A_t|S_t)}{b(A_t|S_t)}\\
+  \quad\quad\quad\quad W \leftarrow W \frac{1}{b(A_t|S_t)}\\
 \end{array}
 $
 ```
