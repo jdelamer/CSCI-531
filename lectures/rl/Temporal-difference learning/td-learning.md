@@ -1,6 +1,6 @@
 # Temporal-Difference Learning
 
-We covered the fundamentals to understand reinforcement learning. One central methods for reinforcement learning is called **Temporal-Difference** (TD) learning. TD learning is composed of dynamic programming and Monte Carlo methods.
+We covered the fundamentals to understand reinforcement learning. One method for reinforcement learning is called **Temporal-Difference** (TD) learning. TD learning is composed of dynamic programming and Monte Carlo methods.
 
 ## TD Prediction
 
@@ -14,7 +14,7 @@ Following is the update done by Monte Carlo methods. What is the disadvantage?
 ```
 ````
 
-To aoid this issue, TD works differently. TD forms a target at time $t+1$ and we use the reward $r_{t+1}$ and the current estimate $V(s_{t+1})$ to update $V(s_{t})$.
+To avoid this issue, TD works differently. TD forms a target at time $t+1$ and we use the reward $r_{t+1}$ and the current estimate $V(s_{t+1})$ to update $V(s_{t})$.
 
 The update is done as:
 
@@ -101,7 +101,7 @@ An advantage over Monte Carlo methods is that they are online and fully incremen
 
 ## SARSA: On-Policy TD learning
 
-Now that we can estimate the value function of a policy, we can improve it. As previous methods, we also need to trade off exploration or prediction. For on-policy methods we must estimate $q_\pi(s,a)$ for all states $s$ and actions $a$.
+Now that we can estimate the value function of a policy, we can improve it. As previous methods, we also need to trade off exploration or prediction. For on-policy methods, we must estimate $q_\pi(s,a)$ for all states $s$ and actions $a$.
 
 :::{admonition} Activity
 :class: activity
