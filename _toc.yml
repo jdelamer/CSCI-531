@@ -3,30 +3,30 @@ root: intro
 parts:
   - caption: Introduction
     chapters:
-    - file: lectures/intro/introduction
-    - file: lectures/multi-armed-bandit/the-problem
-    - file: lectures/multi-armed-bandit/more_about_multi-armed_bandit
-    - file: code/mab
+      - file: lectures/intro/introduction
+      - file: lectures/multi-armed-bandit/the-problem
+      - file: lectures/multi-armed-bandit/more_about_multi-armed_bandit
+      - file: code/mab
   - caption: MDP
     chapters:
-    - file: lectures/mdp/markov-decison-process/markov_decision_process.md
-    - file: lectures/mdp/markov-decison-process/mdp-learning
-    - file: lectures/mdp/dynamic-programming/dynamic-programming
-    - file: code/value_iteration
+      - file: lectures/mdp/markov-decison-process/markov_decision_process.md
+      - file: lectures/mdp/markov-decison-process/mdp-learning
+      - file: lectures/mdp/dynamic-programming/dynamic-programming
+      - file: code/value_iteration
   - caption: Reinforcement Learning
     chapters:
-    - file: lectures/rl/monte-carlo/monte-carlo-methods
-    - file: lectures/rl/Temporal-difference learning/td-learning
-    - file: code/TD
-    - file: lectures/rl/approximate-solutions/on-policy-prediction
-    - file: lectures/rl/policy-gradient/policy-gradient-methods
+      - file: lectures/rl/monte-carlo/monte-carlo-methods
+      - file: lectures/rl/Temporal-difference learning/td-learning
+      - file: code/TD
+      - file: lectures/rl/approximate-solutions/on-policy-prediction
+      - file: lectures/rl/policy-gradient/policy-gradient-methods
   - caption: Assignments
     chapters:
-    - file: asn/cliffwalking
+      - file: asn/cliffwalking
+      - file: asb/frozenlake
   - caption: Outline
     chapters:
-    - file: outline
+      - file: outline
   - caption: Reference
     chapters:
-    - file: glossary
-
+      - file: glossary

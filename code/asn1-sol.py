@@ -212,7 +212,9 @@ def evaluate(env, pi, N):
     return cumulated_rewards / N
 
 
-env = CliffWalkingEnv(True)
-v, pi = value_iteration(env, theta=0.000000000001)
+env_false = CliffWalkingEnv(False)
+v, pi = value_iteration(env_false, theta=0.001)
 
 
+env_true = CliffWalkingEnv(True)
+v, pi = value_iteration(env_false, theta=0.001)
