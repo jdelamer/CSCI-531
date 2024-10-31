@@ -17,31 +17,31 @@ Until now, we used action-value methods in which the action selected in a state 
 However, instead of learning an action value function, we will learn a **parameterized policy** that can select actions without a value function.
 
 :::{note}
-A value function can be used to learn the policy, but is not necessary.
+ While a value function can support policy learning, it is not strictly necessary.
 :::
 
 
 ```{margin}
-It is similar to the weight vector $\mathbf{w}$ introduced in the pevious topic, and it can be implemented with a linear approximation.
+The policy parameter vector $\mathbf{\theta}$ is similar to the weight vector $\mathbf{w}$ introduced previously, and can be implemented with a linear approximation.
 ```
 
-We define $\mathbf{\theta} \in \mathbb{R}^{d'}$ the policy parameter vector. The probability that an action $a$ is taken at time $t$ in state $s$ and parameter $\mathbf{\theta}$ is defined as:
+We define $\mathbf{\theta} \in \mathbb{R}^{d'}$ as the vector of policy parameters. The probability of taking action $a$ in state $s$ at time $t$, given parameters $\mathbf{\theta}$, is defined as:
 
 $$
 \pi(a|s,\mathbf{\theta}) = P(a_t = a|s_t = s,\mathbf{\theta}_t = \mathbf{\theta})
 $$
 
-The policy parameter will be learned using a gradient of a scalar performance measure, that is called $J(\mathbf{\theta})$. In this case we want to maximize the performance, so the update is a gradient ascent in $J$:
+The policy parameters are updated using the gradient of a scalar performance measure, $J(\mathbf{\theta})$. Since we aim to maximize this measure, we apply gradient ascent:
 
 $$
 \mathbf{\theta}_{t+1} = \mathbf{\theta}_{t} + \alpha\widehat{\nabla J(\mathbf{\theta}_t)}
 $$
 
-where $\widehat{\nabla J(\mathbf{\theta}_t)} \in \mathbb{R}^{d'}$ is a stochastic estimate whose expectation approximates of the performance measure with respect to its argument $\mathbf{\theta}_t$.
+where $\widehat{\nabla J(\mathbf{\theta}_t)} \in \mathbb{R}^{d'}$ is a stochastic estimate that approximates the gradient of $J$ with respect to $\mathbf{\theta}_t$.
 
 ## Policy Approximation and its Advantages
 
-In policy gradient methods, the policy can be parameterized in any way. The only condition is that $\pi(a|s,\mathbf{\theta})$ is differentiable with respect to its parameters, but in practice we require that the policy never becomes deterministic.
+In policy gradient methods, the policy’s parameterization is flexible as long as $\pi(a|s,\mathbf{\theta})$ is differentiable with respect to $\mathbf{\theta}$. In practice we require that the policy never becomes deterministic.
 
 :::{admonition} Activity
 :class: activity
@@ -49,19 +49,16 @@ In policy gradient methods, the policy can be parameterized in any way. The only
 Why don’t we want to have a deterministic policy in policy gradient methods?
 :::
 
-If the action space is discrete and not too large, we could create a parameterized numerical preference $h(s, a, \mathbf{\theta})\in \mathbb{R}$ for each state-action pair. The actions with the highest preferences in each state are given the highest probabilities of being selected.
-
-It can be done with a softmax distribution:
+For discrete action spaces, we can create a parameterized preference $h(s, a, \mathbf{\theta})\in \mathbb{R}$ for each state-action pair. Actions with higher preferences are assigned greater probabilities via a softmax distribution:
 
 $$
 \pi(a|s,\mathbf{\theta}) = \frac{e^{h(s,a,\mathbf{\theta})}}{\sum_b e^{h(s,b,\mathbf{\theta})}}
 $$
 
-Parameterizing policies according to softmax has two advantages. 
+Softmax parameterization offers two advantages:
 
-The approximate policy can approach a deterministic policy, whereas with $\epsilon$-greedy will always have a probability to choose a suboptimal action. 
-
-It also enables the selection of actions with arbitrary probabilities. Some problem doesn't have one optimal action for a state, but multiple with different probabilities.
+- The approximate policy can approach a deterministic policy, whereas with $\epsilon$-greedy will always have a probability to choose a suboptimal action. 
+- It also enables the selection of actions with arbitrary probabilities. Some problem doesn't have one optimal action for a state, but multiple with different probabilities.
 
 
 ```{code-cell} ipython3
@@ -121,7 +118,7 @@ We can see that the action with the highest preference, $a_1$, has more than 60%
 
 As always, we can study a first algorithm based on Monte Carlo as it is always easier to implement.
 
-The policy gradient theorem give establishes:
+The policy gradient theorem establishes:
 
 $$
 \begin{aligned}
@@ -217,13 +214,34 @@ Actor-critic methods allow us to have a one-step policy gradient.
 
 - It is combined with the state-value-function of TD(0) and we obtain the following algorithm:
 
-::::{admonition} One-step Actor-critic
-:class: algorithm
+```{prf:algorithm} One-step Actor-critic
+:label: alg:AC
 
-:::{figure} ./one-step-actor-critic.png
-:align: center
-:::
-::::
+$
+\begin{array}{l}
+  \textbf{Inputs}:\\
+  \quad\quad N\ \text{the number of episodes}\\
+  \quad\quad \alpha^\theta, \alpha^\mathbf{w}\in [0, 1]\ \text{the step size}\\
+  \quad\quad \text{A policy parameterization}\ \pi (a|s,\theta)\\
+  \quad\quad \text{A value function parameterization}\  \hat{v}(s,\mathbb{w})\\
+  \textbf{Initialize}: \\
+  \quad\quad  \theta \in \mathbb{R}^{d'}, \text{e.g. to}\ \mathbf{0}\\
+  \quad\quad  \mathbf{w} \in \mathbb{R}^{d}, \text{e.g. to}\ \mathbf{0}\\
+  \textbf{Repeat}\ \text{for}\ N\ \text{episodes:}\\
+  \quad\quad s \leftarrow Initial state\\
+  \quad\quad I \leftarrow 1\\
+  \quad\quad \textbf{While } s\ \text{not terminal}:\\
+  \quad\quad\quad\quad a \sim \pi (. |s,\theta )\\
+  \quad\quad\quad\quad r, s' \leftarrow \text{Execute } a\\
+  \quad\quad\quad\quad \delta \leftarrow r + \gamma\hat{v}(s',\mathbf{w}) - \hat{v}(s,\mathbf{w})\\
+  \quad\quad\quad\quad \mathbf{w} \leftarrow \mathbf{w} + \alpha^\mathbf{w}\delta\nabla\hat{v}(s,\mathbf{w})\\
+  \quad\quad\quad\quad \theta\leftarrow \theta + \alpha^\theta I \delta\nabla\ln \pi(a|s,\theta\\
+  \quad\quad\quad\quad I \leftarrow \gamma I\\
+  \quad\quad\quad\quad s \leftarrow s' \\
+\end{array}
+$
+
+```
 
 ## Continuous Actions
 

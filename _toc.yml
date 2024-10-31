@@ -23,7 +23,7 @@ parts:
   - caption: Assignments
     chapters:
       - file: asn/cliffwalking
-      - file: asb/frozenlake
+      - file: asn/frozenlake
   - caption: Outline
     chapters:
       - file: outline
