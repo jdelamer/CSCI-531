@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from gymnasium import spaces
+import plotly.graph_objects as go
+import numpy as np
 
 class GridWorld(gymnasium.Env):
   def __init__(self):
@@ -32,7 +34,7 @@ class GridWorld(gymnasium.Env):
     Transition function.
     :param action: Action to take
     """
-    r = np.floor(self.state / 3)
+    r = np.floor(self.state / 4)
     c = self.state % 4
 
     prob = np.random.random()
@@ -158,32 +160,72 @@ def plot_conv(q_s0):
 
     plt.show()
 
+
+def plot_v(w, x_f):
+
+  # Create figure
+  fig = go.Figure()
+
+  x, y, text = [], [], []
+  for i in range(4):
+    for j in range(3):
+      if j * 4 + i == 11:
+        fig.add_shape(type="rect", x0=i, y0=j, x1=i + 1, y1=j + 1, line=dict(color="black"), fillcolor="green", layer="below")
+      elif j * 4 + i == 7:
+        fig.add_shape(type="rect", x0=i, y0=j, x1=i + 1, y1=j + 1, line=dict(color="black"), fillcolor="red", layer="below")
+      elif j * 4 + i == 5:
+        fig.add_shape(type="rect", x0=i, y0=j, x1=i + 1, y1=j + 1, line=dict(color="black"), fillcolor="gray", layer="below")
+      else:
+        fig.add_shape(type="rect", x0=i, y0=j, x1=i + 1, y1=j + 1, line=dict(color="black"), fillcolor="white", layer="below")
+      x.append(i + 0.5)
+      y.append(j + 0.5)
+      text.append(int(np.max([q_hat(x_f, j * 4 + i, a, w)  for a in range(4)])))
+
+      fig.add_trace(go.Scatter(
+        x=x,
+        y=y,
+        text=text,
+        mode="text",
+        textfont=dict(
+            color="black",
+            size=18,
+            family="Arial",
+        ),
+        visible=False
+      )
+  )
+
+
+  fig.show()
+
+
 if __name__ == '__main__':
 
     env = GridWorld()
 
     def f1(s,a):
         r = np.floor(s / 4)
-        c = s % 3
+        c = s % 4
         return np.array([1, r, c, a])
 
     def f2(s,a):
         r = np.floor(s / 4)
-        c = s % 3
+        c = s % 4
         x = np.array([1, r, c, 0, 0, 0, 0])
         x[3+a] = 1
         return x
     
     def f3(s,a):
       r = np.floor(s / 4)
-      c = s % 3
-      r_g = np.floor(11 / 3)
+      c = s % 4
+      r_g = np.floor(11 / 4)
       c_g = 11 % 4
       d = np.abs(r - r_g) + np.abs(c - c_g)
       return np.array([1, r, c, a, d])
 
     w, q_0 = sg_sarsa(env, 10000, 0.1, 0.5, f3, 5)
     plot_conv(q_0)
+    plot_v(w, f3)
     # r = eval(env, 10000, f1, w)
     # plot_conv(r)
 
