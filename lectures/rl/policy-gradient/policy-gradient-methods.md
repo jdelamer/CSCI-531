@@ -235,7 +235,7 @@ $
   \quad\quad\quad\quad r, s' \leftarrow \text{Execute } a\\
   \quad\quad\quad\quad \delta \leftarrow r + \gamma\hat{v}(s',\mathbf{w}) - \hat{v}(s,\mathbf{w})\\
   \quad\quad\quad\quad \mathbf{w} \leftarrow \mathbf{w} + \alpha^\mathbf{w}\delta\nabla\hat{v}(s,\mathbf{w})\\
-  \quad\quad\quad\quad \theta\leftarrow \theta + \alpha^\theta I \delta\nabla\ln \pi(a|s,\theta\\
+  \quad\quad\quad\quad \theta\leftarrow \theta + \alpha^\theta I \delta\nabla\ln \pi(a|s,\theta)\\
   \quad\quad\quad\quad I \leftarrow \gamma I\\
   \quad\quad\quad\quad s \leftarrow s' \\
 \end{array}

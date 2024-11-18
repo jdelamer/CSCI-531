@@ -17,7 +17,7 @@ In this assignment, you will implement TD(0) and MC apply to the [Frozen Lake](h
 - **Task:** Implement TD(0) and MC algorithms.
 - **Environment Setup:**
   - Frozen Lake: Two versions - $4\times 4$ and $8\times 8$.
-  - Use a discount factor \( \gamma = 0.9 \).
+  - Use a discount factor ( $\gamma = 0.9$ ).
 - **Deliverables for Part 1:**
   - Both algorithms TD(0) and MC.
   - A plot showing the value function convergence over episodes.
