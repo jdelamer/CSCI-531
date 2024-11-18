@@ -144,8 +144,6 @@ def eval(env, N, x, w):
         rewards.append(tot_reward)
     return rewards
 
-
-
 def plot_conv(q_s0):
     plt.style.use('seaborn-v0_8')
     x = np.linspace(0, len(q_s0), len(q_s0))
@@ -159,7 +157,6 @@ def plot_conv(q_s0):
     ax1.set_xlabel("Episodes")
 
     plt.show()
-
 
 def plot_v(w, x_f):
 
@@ -181,7 +178,7 @@ def plot_v(w, x_f):
       y.append(j + 0.5)
       text.append(int(np.max([q_hat(x_f, j * 4 + i, a, w)  for a in range(4)])))
 
-      fig.add_trace(go.Scatter(
+  fig.add_trace(go.Scatter(
         x=x,
         y=y,
         text=text,
@@ -206,7 +203,7 @@ if __name__ == '__main__':
     def f1(s,a):
         r = np.floor(s / 4)
         c = s % 4
-        return np.array([1, r, c, a])
+        return np.array([1, r, c, a, r*c, r*a, c*a])
 
     def f2(s,a):
         r = np.floor(s / 4)
@@ -221,11 +218,14 @@ if __name__ == '__main__':
       r_g = np.floor(11 / 4)
       c_g = 11 % 4
       d = np.abs(r - r_g) + np.abs(c - c_g)
-      return np.array([1, r, c, a, d])
+      x = np.array([1, r, c, 0, 0, 0, 0])
+      x[3+a] = 1
+      return np.array([1, r, c, 0, 0, 0, 0, d])
 
-    w, q_0 = sg_sarsa(env, 10000, 0.1, 0.5, f3, 5)
+    w, q_0 = sg_sarsa(env, 10000000, 0.001, 0.5, f1, 7)
     plot_conv(q_0)
-    plot_v(w, f3)
-    # r = eval(env, 10000, f1, w)
-    # plot_conv(r)
+    # plot_v(w, f3)
+    r = eval(env, 1000, f1, w)
+    plot_conv(r)
+    print(r)
 
