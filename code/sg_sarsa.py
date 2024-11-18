@@ -222,10 +222,27 @@ if __name__ == '__main__':
       c_g = 11 % 4
       d = np.abs(r - r_g) + np.abs(c - c_g)
       return np.array([1, r, c, a, d])
+    
+    def f4(s, a):
+      r = np.floor(s / 4)  # Row of current state
+      c = s % 4           # Column of current state
+      r_g = np.floor(11 / 4)  # Row of the goal state
+      c_g = 11 % 4           # Column of the goal state
+      r_p = np.floor(7 / 4)  # Row of the penalty state
+      c_p = 7 % 4           # Column of the penalty state
+      
+      d_goal = np.abs(r - r_g) + np.abs(c - c_g)  # Manhattan distance to the goal
+      d_penalty = np.abs(r - r_p) + np.abs(c - c_p)  # Manhattan distance to the penalty
+      
+      # One-hot encoding for actions (0, 1, 2, 3 for up, down, left, right)
+      action_encoding = np.zeros(4)
+      action_encoding[a] = 1
+      
+      return np.concatenate([[1, r, c, d_goal, d_penalty], action_encoding])
 
-    w, q_0 = sg_sarsa(env, 10000, 0.1, 0.5, f3, 5)
+    w, q_0 = sg_sarsa(env, 100000, 2e-13, 0.1, f4, 9)
     plot_conv(q_0)
-    plot_v(w, f3)
+    # plot_v(w, f3)
     # r = eval(env, 10000, f1, w)
     # plot_conv(r)
 
