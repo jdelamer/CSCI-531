@@ -1,36 +1,67 @@
-# Introduction to Neural Network
+# Introduction to Neural Networks
 
-Before applyng Neural Networks (NN) to reinforcement learning, NN will be introduced.
+Neural Networks (NN) are a foundational tool in machine learning, including reinforcement learning. To effectively understand and apply NNs, we begin with an introduction to the necessary mathematical background: **Linear Algebra**.
+
 
 ## Linear Algebra
 
-Linear algebra and neural networks are strongly linked together, so a good understanding of linear algebra is crucial to create and use NN.
+Linear algebra is deeply linked with neural networks. A solid understanding of its concepts is essential for creating and working with NNs.
 
-### Scalars, Vectors, Matrices and Tensors
+### Scalars, Vectors, Matrices, and Tensors
 
-Linear algebra involves several types of mathematical objects.
+The study of linear algebra involves several types of mathematical objects.
 
-```{prf:definition} Scalars
+1. **Scalars**
 
-A scalar is a single number define on a domain.
+    ```{prf:definition} Scalar
+    A scalar is a single number defined on a domain.
+    ```
 
-Notations are in italics lowercase, for example $s\in \mathbb{R}$.
+    - **Notation**: Scalars are denoted by italic lowercase letters, e.g., $s \in \mathbb{R}$.
 
-```
+---
 
-```{prf:definition} Vectors
+2. **Vectors**
 
-A vector is an array of numbers arranged in order, where each number is identified by its index in the ordering.
+    ```{prf:definition} Vector
+    A vector is an ordered array of numbers, where each number is identified by its position in the sequence.
+    ```
 
-Typically, a vector is written with a bold lowercase name, such as $\mathbf{x}$, and each element is idntified by the vector name subscripted by its index (ex: the first element of $\mathbf{x}$ is $x_1$, etc.).
+    - **Notation**: Vectors are denoted by bold lowercase letters, e.g., $\mathbf{x}$.
+    - **Elements**: Each element is represented by the vector name subscripted with its index, e.g., $x_1, x_2, \ldots$.
 
-When elements need to be explicitly identfied, the vecto is written as a column neclosed in square brackets:
+    When written explicitly, vectors appear as columns enclosed in square brackets:
 
-\[
+    ```{math}
+    \mathbf{x} = \begin{bmatrix} x_1 \\ x_2 \\ \vdots \\ x_n \end{bmatrix}
+    ```
 
-\mathbf{x} =
+---
 
-\]
+3. **Matrices**
+
+    ```{prf:definition} Matrix
+    A matrix is a two-dimensional array of numbers, where each element is identified by two indices.
+    ```
+
+    - **Notation**: Matrices are denoted by bold uppercase letters, e.g., $\mathbf{A}$.
+    - **Elements**: Matrix elements are represented by their name in italics with indices, e.g., $A_{m,n}$.
+
+    When written explicitly, matrices are shown as arrays enclosed in square brackets:
+
+    ```{math}
+    \mathbf{A} = \begin{bmatrix} A_{1,1} & A_{1,2} \\ A_{2,1} & A_{2,2} \end{bmatrix}
+    ```
+
+---
+
+4. **Tensors**
+
+    ```{prf:definition} Tensor
+    A tensor is an $n$-dimensional array of numbers, where each element is identified by $n$ indices.
+    ```
+
+    - **Notation**: Tensors are generalized multi-dimensional arrays, often denoted with boldface names.
+    - **Elements**: Tensor elements are represented by their name in italics with indices, e.g., $A_{i,j,k}$.
 
 
-```
