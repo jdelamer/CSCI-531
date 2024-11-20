@@ -225,7 +225,7 @@ Matrix-vector product notation provides a more compact representation for equati
 We have seen linear algebra can be used to represent a system of equations, but it can also be used to solve them.
 
 ````{prf:definition} Identity Matrix
-An identity matrix $\mathbf{I}$ is a matrix that doesn't change any vector, when multiplying the vector by that matrix. Formally, $\mathbf{I} \in \mathbf{R}^{n\times n}$ and, 
+An identity matrix $\mathbf{I}$ is a matrix that doesn't change any vector, when multiplying the vector by that matrix. Formally, $\mathbf{I} \in \mathbf{R}^{n\times n}$ and,
 
 ```{math}
 \forall \mathbf{x} \in \mathbb{R}^n,\ \mathbf{I}_n\mathbf{x} = \mathbf{x}
@@ -237,7 +237,7 @@ For example $\mathbf{I_3}$ is $\begin{bmatrix} 1 & 0 & 0\\ 0 & 1 & 0\\ 0 & 0 & 1
 ```
 
 
-Using the identity matrix we can define another tool called **matrix inversion**. 
+Using the identity matrix we can define another tool called **matrix inversion**.
 
 ````{prf:definition} Matrix Inverse
 The matrix inverse of $\mathbf{A}$ is denoted $\mathbf{A}^{-1}$, and defned such as:
@@ -272,8 +272,96 @@ x = np.matmul(ainv, b)
 print(x)
 ```
 
-
-
 ```{important}
 For $\mathbf{A}^{-1}$ to exist, the equation must have **exactly** one solution for every value of $\mathbf{b}$.
+```
+
+## Deep Neural Networks
+
+In previous topic, we saw tht we could calculate an approximate value function $\hat{v}(s,\mathbf{w})$. The weight vector $\mathbf{w}$ is learned by using a gradient descent methods.
+
+This approach represent $\hat{v}(s,\mathbf{w})$ by a linear function with respect to the feature vector $\mathbf{x}(s)$, and finding a states features can be non-trivial.
+
+In contrast to linear function approximation, deep learning provides a universal method for function approximation that is able to automatically learn feature representations of states, and is able to represent non-linear, complex functions that can generalize to novel states.
+
+### Feedforward Neural Networks
+
+Feed forward networks (FFN) are the most common type of networks in RL. FFN are build in *layers* with the first layer processing the input $\mathbf{x}$ and any subsequent layer processing the output of the previous layer.
+
+Each layer is defined as a parameterized function, and is composed of many units. The output is the concatenation of each unit output.
+
+Usually we refer to some layers with spcific terms:
+
+- Input layer: first layer of the network.
+- Output layer: Last layer of the network.
+- Hidden layers: All layers between the input and output layers.
+
+````{prf:example} FFN example
+
+Consider a neural network with three layers:
+
+```{image} ./img/ffn_example.png
+    :align: center
+```
+
+This FFN could be written as:
+
+```{math}
+f(\mathbf{x}, \mathbf{\theta}) = f_3(f_2(f_1(\mathbf{x}, \mathbf{\theta}^1), \mathbf{\theta}^2), \mathbf{\theta}^3)
+```
+
+where $\theta^k$ are the parameters of layer $k$ and $\theta = \bigcup_k \theta^k$.
+````
+
+#### Neural Unit
+
+A neural unit of a layer $k$ represents a parameterized function $f_{k,u}: \mathbb{R}^{d_{k-1}} \rightarrow \mathbb{R}$, where $d_{k}$ is the number of units at the layer depth $k$.
+
+Each unit computes a linear transformation followed by a non-linear **activation function** $g_k$.
+
+The linear transformation is computed following:
+
+```{math}
+y = \mathbf{x}\mathbf{w}^\intercal + b
+```
+
+where $\mathbf{w} \in \mathbb{R}^{d_{k-1}}$ is a weight vector, and $b\in \mathbb{R}$ is a bias.
+
+```{important}
+The parameters $\theta^k_u\in \mathbb{R}^{d_{k-1}+1}$ contains the weight vector $\mathbf{w}$ and the bias $b$.
+```
+So the unit computation can be written as:
+
+```{math}
+f_{k,u}(\mathbf{x},\theta^{k}_u) = g_k(\mathbf{x}\mathbf{w}^\intercal + b)
+```
+
+```{important}
+Activation function are crucial.
+
+The composition of linear functions only result in a linear function.
+
+Addign a non-linear activation function between layers allow the network to learn complex non-linear aproximations.
+```
+
+````{prf:example} Neural Unit example
+Consider a neural unit receiving a vector $\mathbf{x} \in \mathbb{R}^3$.
+
+```{image} ./img/unit_example.png
+    :align: center
+    :width: 60%
+```
+````
+
+#### Activation Functions
+
+There are many activation functions, some are more common than overs.
+
+In RL, ReLU or rectified linear unit applies a non-linear transformation bu remains "close to linear". This has useful implications for gradient-based optimization. Also ReLU is able to output zero values.
+
+The tanh and sigmoid activation functions are mostly used to restrict the output of a neural network to be within the ranges of $(-1,1)$ or $(0,1)$, respectively.
+
+
+```{image} ./img/activation_functions.png
+    :align: center
 ```
