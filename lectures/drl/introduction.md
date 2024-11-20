@@ -365,3 +365,84 @@ The tanh and sigmoid activation functions are mostly used to restrict the output
 ```{image} ./img/activation_functions.png
     :align: center
 ```
+
+
+#### Network Composition
+
+A neural network is composed os several layers, and each layer is composed of neural units (neurons).
+
+The $k$-th layer of a FFN receives the output of the previous layer $\mathbf{x}_{k-1}\in \mathbb{R}^{d_{k-1}}$ and computes an output $\mathbf{x}_k \in \mathbb{R}^{d_k}$.
+
+If we aggregate all the neural units of the $k$-th layer we can write its computation as:
+
+```{math}
+f_k(\mathbf{x}_{k-1},\theta^k)=g_k(\mathbf{x_{k-1}}\mathbf{W}^\intercal+b_k)
+```
+
+where $g_k$ is the cativation function, $\mathbf{W}\in \mathbb{R}^{d_{k-1}\times d_k}$ the weight matrix, and $\mathbf{b}_k\in \mathbb{R}^{d_k}$ the bias vector. 
+
+```{note}
+The parameters $\theta_k$ contains the weight matrix and the bias vector, such as $\theta^k = \mathbf{W}\cup \mathbf{b}_k$.
+```
+
+This can be seen as the parallel computation of the $d_k$ neural units.
+
+#### Let's practice
+
+Let's consider the code to calculate one neural unit:
+
+```{code-cell} ipython3
+
+x = np.array([1, 2, 3])
+
+w_1 = np.array([1, -1, 0])
+b_1 = -0.2
+
+x1_1 = np.matmul(x,w_1.T) + b_1
+
+print("x1_1: ", x1_1)
+
+```
+
+Now we can add more units:
+
+```{code-cell} ipython3
+
+x = np.array([1, 2, 3])
+
+w_2 = np.array([2, 0, 1])
+b_2 = 0.2
+
+x1_2 = np.matmul(x,w_2.T) + b_2
+
+print("x1_2: ", x1_2)
+
+
+x = np.array([1, 2, 3])
+
+w_3 = np.array([1, -0.3, -1])
+b_3 = 0
+
+x1_3 = np.matmul(x,w_3.T) + b_3
+
+print("x1_3: ", x1_3)
+
+```
+
+Now let's try to calculate for the full layer containing the three neural units:
+
+
+```{code-cell} ipython3
+
+x = np.array([1, 2, 3])
+
+W = np.array([[1, -1, 0],
+              [2, 0, 1],
+              [1, -0.3, -1]])
+
+b = np.array([-0.2, 0.2, 0])
+
+x1 = np.matmul(x,W.T) + b
+print("x1: ", x1)
+
+```
