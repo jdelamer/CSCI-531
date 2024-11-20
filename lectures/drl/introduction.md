@@ -88,8 +88,7 @@ One important operation on matrices is the **transpose**.
 The transpose of a matrix is the mirror image across the **main diagonal**. We denote the transpose of matrix $\mathbf{A}$, as $\mathbf{A}^\intercal$, such that $\left(\mathbf{A}^\intercal\right)_{i,j} = A_{j,i}$.
 
 
-````{admonition} Example
-:class: example
+````{prf:example} Transpose example
 
 ```{math}
 
@@ -222,3 +221,59 @@ Matrix-vector product notation provides a more compact representation for equati
 ```
 
 #### Solving Linear Equations
+
+We have seen linear algebra can be used to represent a system of equations, but it can also be used to solve them.
+
+````{prf:definition} Identity Matrix
+An identity matrix $\mathbf{I}$ is a matrix that doesn't change any vector, when multiplying the vector by that matrix. Formally, $\mathbf{I} \in \mathbf{R}^{n\times n}$ and, 
+
+```{math}
+\forall \mathbf{x} \in \mathbb{R}^n,\ \mathbf{I}_n\mathbf{x} = \mathbf{x}
+```
+````
+
+```{prf:example} Idendity matrix for $n=3$
+For example $\mathbf{I_3}$ is $\begin{bmatrix} 1 & 0 & 0\\ 0 & 1 & 0\\ 0 & 0 & 1\end{bmatrix}$.
+```
+
+
+Using the identity matrix we can define another tool called **matrix inversion**. 
+
+````{prf:definition} Matrix Inverse
+The matrix inverse of $\mathbf{A}$ is denoted $\mathbf{A}^{-1}$, and defned such as:
+```{math}
+\mathbf{A}^{-1}\mathbf{A} = \mathbf{I}_n
+```
+````
+
+It is now possible to solve our system of equations following these steps:
+
+```{math}
+\begin{align}
+\mathbf{Ax} &= \mathbf{b}\\
+\mathbf{A}^{-1}\mathbf{Ax} &= \mathbf{A}^{-1}\mathbf{b}\\
+\mathbf{I}_n\mathbf{x} &= \mathbf{A}^{-1}\mathbf{b}\\
+\mathbf{x} &= \mathbf{A}^{-1}\mathbf{b}
+\end{align}
+```
+
+```{code-cell} ipython3
+import numpy as np
+from numpy.linalg import inv
+
+A = np.array([[1, 1, 1],
+              [0, 2, 5],
+              [2, 5, -1]])
+
+b = np.array([6, -4, 27])
+ainv = inv(A)
+
+x = np.matmul(ainv, b)
+print(x)
+```
+
+
+
+```{important}
+For $\mathbf{A}^{-1}$ to exist, the equation must have **exactly** one solution for every value of $\mathbf{b}$.
+```
