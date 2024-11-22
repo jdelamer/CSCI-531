@@ -79,7 +79,7 @@ The study of linear algebra involves several types of mathematical objects.
 
 ### Operations
 
-With these mathematical object, we can do different operations.
+With these mathematical objects, we can do different operations.
 
 #### Basic Operations
 
@@ -145,9 +145,9 @@ print(2*A-1)
 
 #### Multiplying Matrices and Vectors
 
-The **matrix product** of matrices $\mathbf{A}$ and $\mathbf{B}$ is a third matrix $\mathbf{C}$. To be defined $\mathbf{A}$ must have the same number of columns as $\mathbf{B}$ has rows. Concretely if $\mathbf{A}\in \mathbb{R}^{m\times n}$, and $\mathbf{B}\in \mathbb{R}^{n\times p}$, then $\mathbf{C}\in \mathbb{R}^{m\times p}$.
+The **matrix product** of matrices $\mathbf{A}$ and $\mathbf{B}$ is a third matrix $\mathbf{C}$. To be defined, $\mathbf{A}$ must have the same number of columns as $\mathbf{B}$ has rows. Concretely if $\mathbf{A}\in \mathbb{R}^{m\times n}$, and $\mathbf{B}\in \mathbb{R}^{n\times p}$, then $\mathbf{C}\in \mathbb{R}^{m\times p}$.
 
-We can matrix product by placing two matricres together, for example: $\mathbf{C} = \mathbf{A}\mathbf{B}$.
+We can perform matrix multiplication by placing two matrices together, for example: $\mathbf{C} = \mathbf{A}\mathbf{B}$.
 
 The product operation is defined by:
 
@@ -278,19 +278,19 @@ For $\mathbf{A}^{-1}$ to exist, the equation must have **exactly** one solution 
 
 ## Deep Neural Networks
 
-In previous topic, we saw tht we could calculate an approximate value function $\hat{v}(s,\mathbf{w})$. The weight vector $\mathbf{w}$ is learned by using a gradient descent methods.
+In previous topic, we saw that we could calculate an approximate value function $\hat{v}(s,\mathbf{w})$. The weight vector $\mathbf{w}$ is learned by using a gradient descent method.
 
-This approach represent $\hat{v}(s,\mathbf{w})$ by a linear function with respect to the feature vector $\mathbf{x}(s)$, and finding a states features can be non-trivial.
+This approach represents $\hat{v}(s,\mathbf{w})$ by a linear function with respect to the feature vector $\mathbf{x}(s)$, and finding a states features can be non-trivial.
 
 In contrast to linear function approximation, deep learning provides a universal method for function approximation that is able to automatically learn feature representations of states, and is able to represent non-linear, complex functions that can generalize to novel states.
 
 ### Feedforward Neural Networks
 
-Feed forward networks (FFN) are the most common type of networks in RL. FFN are build in *layers* with the first layer processing the input $\mathbf{x}$ and any subsequent layer processing the output of the previous layer.
+Feed forward networks (FFN) are the most common type of networks in RL. FFN are built in *layers* with the first layer processing the input $\mathbf{x}$ and any subsequent layer processing the output of the previous layer.
 
 Each layer is defined as a parameterized function, and is composed of many units. The output is the concatenation of each unit output.
 
-Usually we refer to some layers with spcific terms:
+Usually we refer to some layers with specific terms:
 
 - Input layer: first layer of the network.
 - Output layer: Last layer of the network.
@@ -341,7 +341,7 @@ Activation function are crucial.
 
 The composition of linear functions only result in a linear function.
 
-Addign a non-linear activation function between layers allow the network to learn complex non-linear aproximations.
+Adding a non-linear activation function between layers allow the network to learn complex non-linear aproximations.
 ```
 
 ````{prf:example} Neural Unit example
@@ -355,9 +355,9 @@ Consider a neural unit receiving a vector $\mathbf{x} \in \mathbb{R}^3$.
 
 #### Activation Functions
 
-There are many activation functions, some are more common than overs.
+There are many activation functions, some are more common than others.
 
-In RL, ReLU or rectified linear unit applies a non-linear transformation bu remains "close to linear". This has useful implications for gradient-based optimization. Also ReLU is able to output zero values.
+In RL, ReLU or rectified linear unit applies a non-linear transformation but remains "close to linear". This has useful implications for gradient-based optimization. Also ReLU is able to output zero values.
 
 The tanh and sigmoid activation functions are mostly used to restrict the output of a neural network to be within the ranges of $(-1,1)$ or $(0,1)$, respectively.
 
@@ -366,10 +366,9 @@ The tanh and sigmoid activation functions are mostly used to restrict the output
     :align: center
 ```
 
-
 #### Network Composition
 
-A neural network is composed os several layers, and each layer is composed of neural units (neurons).
+A neural network is composed of several layers, and each layer is composed of neural units (neurons).
 
 The $k$-th layer of a FFN receives the output of the previous layer $\mathbf{x}_{k-1}\in \mathbb{R}^{d_{k-1}}$ and computes an output $\mathbf{x}_k \in \mathbb{R}^{d_k}$.
 
@@ -379,7 +378,7 @@ If we aggregate all the neural units of the $k$-th layer we can write its comput
 f_k(\mathbf{x}_{k-1},\theta^k)=g_k(\mathbf{x_{k-1}}\mathbf{W}^\intercal+b_k)
 ```
 
-where $g_k$ is the cativation function, $\mathbf{W}\in \mathbb{R}^{d_{k-1}\times d_k}$ the weight matrix, and $\mathbf{b}_k\in \mathbb{R}^{d_k}$ the bias vector. 
+where $g_k$ is the activation function, $\mathbf{W}\in \mathbb{R}^{d_{k-1}\times d_k}$ the weight matrix, and $\mathbf{b}_k\in \mathbb{R}^{d_k}$ the bias vector.
 
 ```{note}
 The parameters $\theta_k$ contains the weight matrix and the bias vector, such as $\theta^k = \mathbf{W}\cup \mathbf{b}_k$.
@@ -389,7 +388,13 @@ This can be seen as the parallel computation of the $d_k$ neural units.
 
 #### Let's practice
 
-Let's consider the code to calculate one neural unit:
+Consider an iput $\mathbf{x}_0 = \begin{bmatrix} 1 \\ 2 \\ 3 \end{bmatrix}$, a weight matrix $\mathbf{W} = \begin{bmatrix}
+1 & -1 & 0 \\
+2 & 0 & 1 \\
+1 & -0.3 & -1
+\end{bmatrix}$, and a bias vector $\mathbf{b} = \begin{bmatrix} -0.2 \\ 0.2 \\ 0 \end{bmatrix}$.
+
+Let's consider the code to calculate the output $x_{1,1}$ of **one** neural unit:
 
 ```{code-cell} ipython3
 
@@ -404,7 +409,7 @@ print("x1_1: ", x1_1)
 
 ```
 
-Now we can add more units:
+Now we can add the remaining two units:
 
 ```{code-cell} ipython3
 
@@ -444,5 +449,54 @@ b = np.array([-0.2, 0.2, 0])
 
 x1 = np.matmul(x,W.T) + b
 print("x1: ", x1)
+
+```
+
+It is now possible to apply different activation functions. We will consider the sigmid, the tanh, Relu, and Leaky ReLu.
+
+```{code-cell} ipython3
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+# Activation functions
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def tanh(x):
+    return np.tanh(x)
+
+def relu(x):
+    return np.maximum(0, x)
+
+def leaky_relu(x, alpha=0.01):
+    return np.where(x > 0, x, x * alpha)
+
+# Apply activation functions
+x1_sigmoid = sigmoid(x1)
+x1_tanh = tanh(x1)
+x1_relu = relu(x1)
+x1_leaky_relu = leaky_relu(x1)
+
+# Plot each activation function result
+activation_functions = {
+    "Sigmoid": x1_sigmoid,
+    "Tanh": x1_tanh,
+    "ReLU": x1_relu,
+    "Leaky ReLU": x1_leaky_relu,
+    "Without activation": x1
+}
+
+# Plot all activation functions on the same plot
+plt.figure()
+
+for name, result in activation_functions.items():
+    plt.plot(result, marker='o', label=name)
+
+plt.title('Activation Functions Comparison')
+plt.xlabel('Index')
+plt.ylabel('Output')
+plt.legend()
+plt.grid()
 
 ```
