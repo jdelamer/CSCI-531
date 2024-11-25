@@ -500,3 +500,67 @@ plt.legend()
 plt.grid()
 
 ```
+
+## Training Neural Networks
+
+Training neural networks involves optimizing their parameters to minimize a loss function. This process typically uses gradient-based optimization methods.
+
+The principle is identical to the previous methods covered.
+
+```{prf:definition} Loss Function
+A loss function $\mathcal{L}(\theta)$ measures how well the network performs on the training data with parameters $\theta$.
+```
+
+We have seen the main one for value functions: Mean Squared Error (MSE).
+
+```{math}
+\mathcal{L}(\theta) = \frac{1}{n}\sum_{i=1}^n (y_i - \hat{y}_i)^2
+```
+
+To update the parameters $\theta$, we also use the gradient descent algorithm.
+
+```{prf:algorithm} Gradient Descent
+:label: gradient-descent
+
+1. Initialize parameters $\theta$
+2. Repeat until convergence:
+   - Compute gradient: $\nabla_\theta L(\theta)$
+   - Update parameters: $\theta \leftarrow \theta - \alpha \nabla_\theta L(\theta)$
+
+where $\alpha$ is the learning rate.
+```
+
+### Mini-batch Training
+
+In practice, computing the gradient over the entire trajectories is computationally expensive. Mini-batch training addresses this by:
+
+1. Dividing the dataset into small batches
+2. Computing gradients on each batch
+3. Updating parameters more frequently
+
+```{prf:algorithm} Mini-batch Gradient Descent
+:label: mini-batch-gd
+
+1. Initialize parameters $\theta$
+2. For each epoch:
+   - Shuffle training data
+   - Split data into mini-batches
+   - For each mini-batch $B$:
+     * Compute gradient: $\nabla_\theta \mathcal{L}_B(\theta)$
+     * Update parameters: $\theta \leftarrow \theta - \alpha \nabla_\theta \mathcal{L}_B(\theta)$
+```
+
+Advantages of Mini-batch Training:
+- More frequent parameter updates
+- Better convergence behavior
+- More efficient use of computational resources
+
+### Backpropagation
+
+Backpropagation is an efficient algorithm for computing gradients in neural networks. It applies the chain rule of calculus to propagate gradients backward through the network.
+
+```{prf:definition} Backpropagation
+An algorithm that efficiently computes the gradient of the loss with respect to each parameter by working backward from the output layer to the input layer.
+```
+
+Once we calculate the loss, we propagate gradients backward through each layer, then we update parameters using computed gradients.

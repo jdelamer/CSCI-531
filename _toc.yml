@@ -23,6 +23,7 @@ parts:
   - caption: Deep Reinforcement Learning
     chapters:
       - file: lectures/drl/introduction
+      - file: lectures/drl/deep-q-learning
   - caption: Assignments
     chapters:
       - file: asn/cliffwalking
