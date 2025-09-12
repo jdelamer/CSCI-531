@@ -1,9 +1,26 @@
 # Multi-armed bandit
 
+## From Full RL to Bandit Problems
 
 * Remember the difference between reinforcement learning and unsupervised learning.
 * Reinforcement learning uses training information to evaluate the actions.
 * To really understand the RL we need to understand its evaluative aspect.
+
+**Why start with bandits?**
+* Multi-armed bandits are a **simplified version** of the full reinforcement learning problem
+* They help us focus on one key aspect: the **exploration-exploitation trade-off**
+* Understanding bandits provides the foundation for more complex RL scenarios
+
+**How bandits relate to full RL:**
+* **Bandit**: Single state, multiple actions, immediate rewards
+* **Full RL**: Multiple states, multiple actions, delayed rewards
+* **Key insight**: Every state in full RL can be viewed as a separate bandit problem
+
+```{admonition} Activity
+:class: activity
+Think of a video game character at a crossroads. How is choosing which path to take similar to a bandit problem? How is it different from the full game?
+```
+
 * We will consider the $k$-armed bandit problem.
 
 ## What is the $k$-armed bandit problem?

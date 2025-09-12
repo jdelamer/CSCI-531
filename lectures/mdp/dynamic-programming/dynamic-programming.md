@@ -1,14 +1,23 @@
 # Dynamic Programming
 
-In two previous topics, we explored how to model a problem and determine the best policy. The final piece is an algorithm to calculate the optimal policy and value function.
+## From Theory to Practice: Computing Optimal Policies
 
-There are various approaches to this:
+In the previous sections, we learned:
+- How to model problems as MDPs
+- Why we need policies and value functions
+- What optimal policies and value functions look like mathematically
 
-- Dynamic programming
-- Monte Carlo methods
-- Reinforcement learning
+**The Remaining Challenge**: How do we actually *compute* these optimal policies and value functions?
 
-Dynamic programming was the first proposed method and provides the foundational principles.
+**The Approach Menu**: There are various computational approaches:
+- **Dynamic programming** (requires complete knowledge of MDP)
+- **Monte Carlo methods** (learns from experience)
+- **Temporal difference learning** (combines both approaches)
+
+**Why Start with Dynamic Programming**:
+1. **Conceptual Foundation**: Establishes the core principles used in all RL algorithms
+2. **Theoretical Clarity**: Shows exactly what we're trying to approximate in other methods
+3. **Practical Utility**: Works perfectly when we know the MDP completely
 
 :::{admonition} Activity
 :class: activity
@@ -17,33 +26,30 @@ Dynamic programming was the first proposed method and provides the foundational 
 - Give the formulas.
 :::
 
-## Policy Iteration
+## Policy Iteration: The Intuitive Approach
 
-The algorithm works in two parts:
+The core idea is simple: start with any policy, then repeatedly improve it until we can't make it any better. This involves two alternating steps: policy evaluation (calculating how good the current policy is) and policy improvement (updating the policy based on these values).
 
-- Policy evaluation (prediction)
-- Policy improvement
+Each improvement step is guaranteed to make the policy better (or keep it the same if already optimal). The algorithm follows this flow:
+
+```
+Random Policy → Evaluate → Improve → Evaluate → Improve → ... → Optimal Policy
+```
 
 ### Policy Evaluation
 
-The idea of policy evaluation is to compute the value function $v_\pi$ for a policy $\pi$.
-Remember the equation from the previous topic:
+Given a fixed policy $\pi$, we want to compute its value function $v_\pi(s)$ for all states. This presents us with the Bellman equation:
 
 $$
 v_\pi(s) = \sum_a\pi(a|s)\sum_{s'}p(s'|s,a)\left[ r(s,a) + \gamma v_\pi(s') \right]
 $$
 
-It is possible to calculate this equation by iterative methods.
+This equation is circular—the value of state $s$ depends on the values of future states $s'$. We solve this through iterative approximation, starting with initial guesses and improving them until they stabilize.
 
-- Consider a sequence of approximate value functions $v_0, v_1, v_2, \dots$.
-- We initialize $v_0$ with an initial value and the goal state to $0$.
-- Each successive approximation is calculated as defined above:
+The process begins by setting initial value estimates $v_0(s)$ (often all zeros). Then, for each iteration $k$, we compute new estimates:
+$$v_{k+1}(s) = \sum_a\pi(a|s)\sum_{s'}p(s'|s,a)\left[ r(s,a) + \gamma v_k(s') \right]$$
 
-$$
-v_{k+1}(s) = \sum_a\pi(a|s)\sum_{s'}p(s'|s,a)\left[ r(s,a) + \gamma v_k(s') \right]
-$$
-
-- This update function will converge to $v_\pi$ as $k \rightarrow \infty$.
+We continue until values stop changing significantly. Each iteration gives us a better approximation, and eventually the values converge to the true $v_\pi$. Intuitively, we're propagating value information backwards through the state space—good states make their neighbors more valuable.
 
 Of course at each step you need to calculate $v_k(s)$ for every state $s \in S$. Put in an algorithm we obtain:
 
@@ -87,21 +93,15 @@ We will consider the following problem, initial policy, and initial value functi
 
 ### Policy Improvement
 
-- Now we can evaluate a policy, it is possible to find a better one.
+Given a policy $\pi$ and its value function $v_\pi$, we can find a better policy. If we know how valuable each state is, we can improve our policy by being greedy with respect to these values.
 
-- The idea is simple:
+For each state $s$, we examine all possible actions. For each action $a$, we calculate what would happen if we took that action:
+$$q_\pi(s,a) = \sum_{s'}p(s'|s,a)\left[r(s,a) + \gamma v_\pi(s')\right]$$
 
-  - We take our value function $v_\pi$.
-  - We choose a state $s$.
-  - And we check if we need to change the policy for an action $a, a\neq \pi(s)$.
+The value $q_\pi(s,a)$ tells us: "If I take action $a$ in state $s$, then follow my current policy, what's my expected return?" If $q_\pi(s,a) > v_\pi(s)$, then action $a$ is better than what our current policy suggests, so we should update our policy to choose action $a$ in state $s$.
 
-- A way to verify this is to calculate the q-value:
-
-$$
-q_\pi(s,a) = \sum_{s'}p(s'|s,a)\left[r(s,a) + \gamma v_\pi(s')\right]
-$$
-
-- Then we can compare the value obtain with the one in the current value function.
+The improvement step creates a new policy $\pi'$ where:
+$$\pi'(s) = \arg\max_a q_\pi(s,a) = \arg\max_a \sum_{s'}p(s'|s,a)\left[r(s,a) + \gamma v_\pi(s')\right]$$
 
 ```{prf:theorem} Policy improvement
 :label: policy_improvement
@@ -120,29 +120,27 @@ v_{\pi'}(s) \geq v_\pi(s)
 $$
 ```
 
-The intuition is that if we change the action for a state $s$ within a policy, the modified policy will be better. To find the optimal policy, we need to apply this change to all states. Each time, we select the action that appears better according to $q_\pi(s,a)$.
+The policy improvement theorem guarantees that if we make the policy greedy with respect to its own value function, the new policy will be at least as good as the original. The new policy $\pi'$ satisfies $v_{\pi'}(s) \geq v_\pi(s)$ for all states $s$.
 
-$$
-\begin{aligned}
-\pi'(s) &= \arg\max_a q_\pi(s,a)\\
-&= \arg\max_a \mathbb{E}\left[ r_{t+1} + \gamma v_\pi(s_{t+1}) \right]\\
-&= \arg\max_a \sum_{s'}p(s'|s,a)\left[ r(s,a) + \gamma v_\pi(s')\right]\\
-\end{aligned}
-$$
+Intuitively, we're asking "what if I acted optimally for just one step, then went back to my old policy?" This can only make things better (or stay the same). The greedy policy:
+$$\pi'(s) = \arg\max_a \sum_{s'}p(s'|s,a)\left[ r(s,a) + \gamma v_\pi(s')\right]$$
 
-This greedy method respect the policy improvement theorem.
+automatically respects the policy improvement theorem—we're guaranteed not to make things worse.
 
 ### Policy Iteration Algorithm
 
-The policy iteration algorithm combines the two previous steps. It calculates the optimal policy by executing the previous steps multiple time:
+The complete process alternates between evaluation and improvement until convergence. Since MDPs have a finite number of deterministic policies and each improvement step makes the policy strictly better (unless already optimal), we must eventually reach the optimal policy.
 
-1. Evaluate a policy
-2. Improve the policy
-3. If the policy changed go to step 1.
+The algorithm cycle is:
+```
+1. Start with arbitrary policy π₀
+2. EVALUATION: Compute vπ for current policy
+3. IMPROVEMENT: Compute improved policy π' from vπ  
+4. If π' = π, STOP (we found π*)
+5. Otherwise, set π = π' and go to step 2
+```
 
-MDPs has a finite number of policies, so it will converge to the optimal policy.
-
-The complete algorithm is:
+This process will find the optimal policy π* in finite time.
 
 ````{prf:algorithm} Policy Iteration
 :label: policy_iteration
@@ -185,29 +183,25 @@ Following the previous example, we can apply policy iteration.
 ```
 ````
 
-```{admonition} Activity
+Each evaluation requires multiple sweeps through all states, and we must store value function and policy for all states. The algorithm can be slow for large state spaces.
+
+:::{admonition} Activity
 :class: activity
 
-Suggest possible drawback of this method.
-```
+Consider the drawbacks: What's the main computational bottleneck in policy iteration? How might this scale with the size of the state space? Can you think of ways to make it more efficient?
+:::
 
 ## Value Iteration
 
-Considering the issue with Policy Iteration, we could come up with another algorithm. It is possible to only consider a one-step policy evaluation.
+Policy iteration's bottleneck is the full policy evaluation step. What if we combined evaluation and improvement? We don't need to fully evaluate a policy before improving it—even one step of evaluation gives us useful information for improvement.
 
-This algorithm is **Value Iteration**.
+Value iteration skips the full policy evaluation step. Instead, it does one step of evaluation combined with immediate improvement, repeating until convergence. Instead of following a fixed policy, we always choose the best action:
 
-- It proposes to do only one step evaluation combined with policy improvement.
-- We obtain the following formula:
+$$v_{k+1}(s) = \max_a\sum_{s'}p(s'|s,a)\left[ r(s,a) + \gamma v_k(s') \right]$$
 
-$$
-\begin{aligned}
-v_{k+1}(s) &= \max_a \mathbb{E}\left[ r_{t+1} + \gamma v_k(s_k) | s_t = s, a_t = a \right]\\
-&= \max_a\sum_{s'}p(s'|s,a)\left[ r(s,a) + \gamma v_k(s') \right]\\
-\end{aligned}
-$$
+While policy iteration says "fully evaluate my current strategy, then improve it," value iteration says "always act greedily based on my current value estimates." This approach is more efficient per iteration since there's no full policy evaluation, but may need more iterations to converge. We continue until value changes are below a threshold.
 
-It updates the value function, but we lose our stopping criteria. As it can take an infinite number of steps to converge to the optimal value function, we need to define when to stop. In practice, we fix a small value, and when the value function change by less than this value we stop.
+This approach works because it's actually solving the Bellman optimality equation directly through iteration.
 
 ````{prf:algorithm} Value Iteration
 :label: value_iteration
@@ -230,6 +224,11 @@ $
 \end{array}
 $
 ````
-```{important}
-This algorithm converges faster than policy iterations.
-```
+Value iteration converges to the optimal value function $v^*$ and is often faster per iteration than policy iteration, though total computation time depends on the specific problem. It's simpler to implement since there's no separate policy evaluation phase, and it's more memory efficient since we don't need to store an explicit policy during iteration.
+
+:::{important}
+Value iteration often converges faster than policy iteration in terms of wall-clock time, though it may require more iterations.
+:::
+
+Once we have $v^*$, we extract the optimal policy:
+$$\pi^*(s) = \arg\max_a\sum_{s'}p(s'|s,a)\left[ r(s,a) + \gamma v^*(s') \right]$$
