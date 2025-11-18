@@ -1,0 +1,546 @@
+\documentclass{cstd}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\university{St. Francis Xavier University}
+\department{Department of Computer Science}
+\course{CSCI-531 - Reinforcement Learning}
+\courseshort{CSCI-531}
+\exam{Practice Exercises: Monte Carlo Methods}
+\examdate{Fall 2025}
+
+\begin{document}
+
+\maketitle
+
+\printanswers
+
+\begin{questions}
+
+% =====================================================
+% PART I: MONTE CARLO FUNDAMENTALS
+% =====================================================
+
+\section*{Part I: Monte Carlo Fundamentals}
+
+\question \textbf{Model-Free vs Model-Based Learning}
+
+\begin{parts}
+\part Compare Dynamic Programming and Monte Carlo methods by filling in the table:
+
+\begin{center}
+\begin{tabular}{|p{3cm}|p{5cm}|p{5cm}|}
+\hline
+\textbf{Aspect} & \textbf{Dynamic Programming} & \textbf{Monte Carlo Methods} \\
+\hline
+Model Requirements & & \\
+\hline
+Learning Source & & \\
+\hline
+Episode Requirements & & \\
+\hline
+Convergence Guarantee & & \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{solution}
+\begin{center}
+\begin{tabular}{|p{3cm}|p{5cm}|p{5cm}|}
+\hline
+\textbf{Model Requirements} & Full transition model $p(s'|s,a)$ required & No model required \\
+\hline
+\textbf{Learning Source} & Mathematical computation from model & Experience from episodes \\
+\hline
+\textbf{Episode Requirements} & No episodes needed & Must have episodic tasks \\
+\hline
+\textbf{Convergence Guarantee} & Exact solution with sufficient iterations & Converges to true values by Law of Large Numbers \\
+\hline
+\end{tabular}
+\end{center}
+\end{solution}
+
+\part A robot is learning to navigate a maze. For each scenario, determine whether Dynamic Programming or Monte Carlo would be more appropriate:
+
+\begin{enumerate}
+    \item The maze layout is fully known, including all wall positions and the goal location
+    \item The robot must learn by exploring an unknown maze
+    \item The maze has moving obstacles with unknown movement patterns
+    \item The maze is deterministic but the transition probabilities are too complex to model
+\end{enumerate}
+
+\begin{solution}
+\begin{enumerate}
+    \item \textbf{Dynamic Programming} - Full knowledge of maze layout provides complete model
+    \item \textbf{Monte Carlo} - Unknown environment requires learning from experience
+    \item \textbf{Monte Carlo} - Moving obstacles make modeling impractical
+    \item \textbf{Monte Carlo} - Complex transitions make model-based approach difficult
+\end{enumerate}
+\end{solution}
+
+\end{parts}
+
+\question \textbf{Episode Generation and Returns}
+
+Consider a simple 3-state MDP where an agent can be in states $\{A, B, C\}$ with $C$ being the terminal state. An episode generates the following trajectory with $\gamma = 0.9$:
+
+$$A \xrightarrow{r=2} B \xrightarrow{r=1} A \xrightarrow{r=3} C$$
+
+\begin{parts}
+\part Calculate the return $G_0$ (from the first visit to state $A$).
+
+\begin{solution}
+$G_0 = r_1 + \gamma r_2 + \gamma^2 r_3 = 2 + 0.9(1) + 0.9^2(3) = 2 + 0.9 + 2.43 = 5.33$
+\end{solution}
+
+\part Calculate the return $G_2$ (from the second visit to state $A$).
+
+\begin{solution}
+$G_2 = r_3 = 3$
+
+From the second visit to $A$, only the immediate reward to terminal state $C$ contributes to the return.
+\end{solution}
+
+\part If this is the only episode collected so far, what would be the First-Visit Monte Carlo estimate for $V(A)$?
+
+\begin{solution}
+First-Visit MC only considers the first occurrence of state $A$ in each episode.
+
+$V(A) = G_0 = 5.33$
+
+The second visit to $A$ is ignored in First-Visit MC.
+\end{solution}
+
+\part What would be the Every-Visit Monte Carlo estimate for $V(A)$?
+
+\begin{solution}
+Every-Visit MC considers all occurrences of state $A$.
+
+$V(A) = \frac{G_0 + G_2}{2} = \frac{5.33 + 3}{2} = 4.165$
+\end{solution}
+
+\end{parts}
+
+\question \textbf{Blackjack Value Estimation}
+
+A Monte Carlo agent is learning to play Blackjack using a simple policy: "Hit if hand value $<$ 17, Stand otherwise." After collecting episodes, the agent has the following returns for the state "Hand = 16":
+
+Episodes: $G_1 = -1, G_2 = +1, G_3 = -1, G_4 = -1, G_5 = +1, G_6 = -1$
+
+\begin{parts}
+\part Calculate the Monte Carlo estimate $V(\text{Hand} = 16)$ after all 6 episodes.
+
+\begin{solution}
+$V(\text{Hand} = 16) = \frac{-1 + 1 + (-1) + (-1) + 1 + (-1)}{6} = \frac{-2}{6} = -0.333$
+\end{solution}
+
+\part If the true value is $V^*(\text{Hand} = 16) = -0.4$, what does this suggest about the current estimate?
+
+\begin{solution}
+The estimate (-0.333) is close to the true value (-0.4), suggesting that:
+\begin{itemize}
+\item The agent is learning the correct value function
+\item More episodes would likely improve the estimate
+\item The current policy may be reasonable for this state
+\end{itemize}
+The small difference indicates the estimate is converging toward the true value.
+\end{solution}
+
+\part How would the estimate change if we collected 1000 more episodes with the same win/loss ratio?
+
+\begin{solution}
+If the win/loss ratio remains the same (2 wins out of 6 episodes = 1/3 win rate):
+\begin{itemize}
+\item Expected value would be approximately: $\frac{1}{3}(+1) + \frac{2}{3}(-1) = \frac{1 - 2}{3} = -0.333$
+\item With 1000 more episodes, the estimate would remain close to -0.333
+\item However, the variance would decrease significantly due to Law of Large Numbers
+\item The estimate would become more reliable and stable
+\end{itemize}
+\end{solution}
+
+\end{parts}
+
+% =====================================================
+% PART II: MONTE CARLO PREDICTION
+% =====================================================
+
+\section*{Part II: Monte Carlo Prediction}
+
+\question \textbf{First-Visit vs Every-Visit Monte Carlo}
+
+Consider the following episode with $\gamma = 1$:
+$$S_1 \xrightarrow{r=3} S_2 \xrightarrow{r=1} S_1 \xrightarrow{r=2} S_3 \xrightarrow{r=0} \text{Terminal}$$
+
+\begin{parts}
+\part For state $S_1$, calculate the returns for each visit and determine the estimates using both First-Visit and Every-Visit Monte Carlo.
+
+\begin{solution}
+\textbf{Visits to $S_1$:}
+\begin{itemize}
+\item First visit (time 0): $G_0 = 3 + 1 + 2 + 0 = 6$
+\item Second visit (time 2): $G_2 = 2 + 0 = 2$
+\end{itemize}
+
+\textbf{First-Visit MC:} $V(S_1) = G_0 = 6$
+
+\textbf{Every-Visit MC:} $V(S_1) = \frac{G_0 + G_2}{2} = \frac{6 + 2}{2} = 4$
+\end{solution}
+
+\part Explain why First-Visit and Every-Visit give different estimates and discuss the trade-offs.
+
+\begin{solution}
+\textbf{Why different:}
+\begin{itemize}
+\item First-Visit uses only the first occurrence, treating each episode as one independent sample
+\item Every-Visit uses all occurrences, providing more data but with correlated samples
+\end{itemize}
+
+\textbf{Trade-offs:}
+\begin{itemize}
+\item \textbf{First-Visit:} Simpler analysis, proven convergence, independent samples
+\item \textbf{Every-Visit:} More data per episode, faster convergence in practice, but correlated samples
+\item \textbf{Bias:} Both are unbiased estimators of the true value function
+\item \textbf{Variance:} Every-Visit may have lower variance due to more samples
+\end{itemize}
+\end{solution}
+
+\end{parts}
+
+\question \textbf{Monte Carlo Algorithm Implementation}
+
+\begin{parts}
+
+\part Explain why the algorithm processes episodes backwards (from terminal state to initial state).
+
+\begin{solution}
+\textbf{Reasons for backward processing:}
+\begin{itemize}
+\item \textbf{Efficiency:} Returns are sums of future rewards. By going backwards, we can incrementally build the return using $G = \gamma G + R_{t+1}$
+\item \textbf{Correctness:} When we reach time $t$, we already have the complete return $G_t$ calculated
+\item \textbf{Memory:} We don't need to store all future rewards - just update the running sum
+\item \textbf{Implementation:} Much simpler than recalculating returns from scratch for each time step
+\end{itemize}
+\end{solution}
+
+\end{parts}
+
+% =====================================================
+% PART III: ACTION VALUES AND EXPLORATION
+% =====================================================
+
+\section*{Part III: Action Values and Exploration}
+
+\question \textbf{Why Action Values Are Essential}
+
+\begin{parts}
+\part Explain why state values $V^\pi(s)$ are insufficient for policy improvement in model-free settings.
+
+\begin{solution}
+\textbf{The problem with state values alone:}
+\begin{itemize}
+\item Policy improvement in DP requires: $\pi'(s) = \arg\max_a \sum_{s'} p(s'|s,a)[r + \gamma V(s')]$
+\item This requires transition probabilities $p(s'|s,a)$ which are unknown in model-free settings
+\item State values tell us how good states are, but not which actions lead to the best states
+\item Without the model, we cannot evaluate action consequences
+\end{itemize}
+
+\textbf{Why action values solve this:}
+\begin{itemize}
+\item $Q(s,a)$ directly tells us the value of taking action $a$ in state $s$
+\item Policy improvement becomes: $\pi'(s) = \arg\max_a Q(s,a)$ (no model needed)
+\item Action values encode both immediate rewards and future consequences
+\end{itemize}
+\end{solution}
+
+\part Consider a state with three actions where $Q(s,a_1) = 5.2$, $Q(s,a_2) = 3.8$, and $Q(s,a_3) = 4.1$. What would a greedy policy select, and what potential problem does this create?
+
+\begin{solution}
+\textbf{Greedy policy selection:} $\pi(s) = a_1$ (highest Q-value = 5.2)
+
+\textbf{Potential problems:}
+\begin{itemize}
+\item \textbf{Exploration problem:} If we always select $a_1$, we never get new samples for $a_2$ and $a_3$
+\item \textbf{Poor estimates:} $Q(s,a_2)$ and $Q(s,a_3)$ may be based on very few samples and could be inaccurate
+\item \textbf{Missed opportunities:} The true optimal action might actually be $a_2$ or $a_3$, but we'll never discover this with pure greedy selection
+\item \textbf{Stagnation:} Learning stops for non-selected actions
+\end{itemize}
+\end{solution}
+
+\end{parts}
+
+\question \textbf{$\epsilon$-Greedy Policy Analysis}
+
+\begin{parts}
+\part For a state with 4 actions and $\epsilon = 0.2$, calculate the $\epsilon$-greedy policy probabilities if $Q(s,a_1) = 7$, $Q(s,a_2) = 4$, $Q(s,a_3) = 5$, $Q(s,a_4) = 2$.
+
+\begin{solution}
+\textbf{Identify greedy action:} $a^* = \arg\max_a Q(s,a) = a_1$ (Q-value = 7)
+
+\textbf{Calculate probabilities:}
+\begin{itemize}
+\item $\pi(a_1|s) = 1 - \epsilon + \frac{\epsilon}{|A|} = 1 - 0.2 + \frac{0.2}{4} = 0.8 + 0.05 = 0.85$
+\item $\pi(a_2|s) = \frac{\epsilon}{|A|} = \frac{0.2}{4} = 0.05$
+\item $\pi(a_3|s) = \frac{\epsilon}{|A|} = \frac{0.2}{4} = 0.05$
+\item $\pi(a_4|s) = \frac{\epsilon}{|A|} = \frac{0.2}{4} = 0.05$
+\end{itemize}
+
+\textbf{Verification:} $0.85 + 0.05 + 0.05 + 0.05 = 1.0$
+\end{solution}
+
+\part How would the policy probabilities change if after more episodes, the Q-values become $Q(s,a_1) = 7$, $Q(s,a_2) = 7.5$, $Q(s,a_3) = 5$, $Q(s,a_4) = 2$?
+
+\begin{solution}
+\textbf{New greedy action:} $a^* = a_2$ (Q-value = 7.5)
+
+\textbf{New probabilities:}
+\begin{itemize}
+\item $\pi(a_1|s) = \frac{\epsilon}{|A|} = \frac{0.2}{4} = 0.05$
+\item $\pi(a_2|s) = 1 - \epsilon + \frac{\epsilon}{|A|} = 0.8 + 0.05 = 0.85$
+\item $\pi(a_3|s) = \frac{\epsilon}{|A|} = 0.05$
+\item $\pi(a_4|s) = \frac{\epsilon}{|A|} = 0.05$
+\end{itemize}
+
+\textbf{Key insight:} The policy automatically adapts as Q-values improve, shifting probability mass to the new best action while maintaining exploration.
+\end{solution}
+
+\end{parts}
+
+% =====================================================
+% PART IV: MONTE CARLO CONTROL
+% =====================================================
+
+\section*{Part IV: Monte Carlo Control}
+
+\question \textbf{On-Policy Monte Carlo Control}
+
+Consider a simple 2-state MDP with states $\{A, B\}$ where state $B$ is terminal. From state $A$, the agent can take actions $\{left, right\}$. After several episodes using $\epsilon$-greedy policy with $\epsilon = 0.1$, the current Q-values are:
+
+$Q(A, left) = 3.2$, $Q(A, right) = 2.8$
+
+\begin{parts}
+\part Calculate the current $\epsilon$-greedy policy probabilities for state $A$.
+
+\begin{solution}
+\textbf{Greedy action:} $left$ (Q-value = 3.2)
+
+\textbf{Policy probabilities:}
+\begin{itemize}
+\item $\pi(left|A) = 1 - \epsilon + \frac{\epsilon}{|A|} = 1 - 0.1 + \frac{0.1}{2} = 0.9 + 0.05 = 0.95$
+\item $\pi(right|A) = \frac{\epsilon}{|A|} = \frac{0.1}{2} = 0.05$
+\end{itemize}
+\end{solution}
+
+\part If the next episode follows the trajectory $A \xrightarrow{left, r=4} B$ and this is the 4th time we've visited state-action pair $(A, left)$ with previous returns $\{3.0, 3.1, 3.5\}$, what is the updated Q-value?
+
+\begin{solution}
+\textbf{New return:} $G = 4$ (immediate reward to terminal state)
+
+\textbf{All returns for $(A, left)$:} $\{3.0, 3.1, 3.5, 4.0\}$
+
+\textbf{Updated Q-value:}
+$Q(A, left) = \frac{3.0 + 3.1 + 3.5 + 4.0}{4} = \frac{13.6}{4} = 3.4$
+\end{solution}
+
+\part How does the policy change after this update?
+
+\begin{solution}
+\textbf{Updated Q-values:} $Q(A, left) = 3.4$, $Q(A, right) = 2.8$
+
+\textbf{Greedy action:} Still $left$ (higher Q-value)
+
+\textbf{New policy probabilities:}
+\begin{itemize}
+\item $\pi(left|A) = 0.95$ (unchanged)
+\item $\pi(right|A) = 0.05$ (unchanged)
+\end{itemize}
+
+\textbf{Result:} Policy remains the same since $left$ is still the greedy action, but the Q-value estimate became more accurate.
+\end{solution}
+
+\end{parts}
+
+\question \textbf{Off-Policy Monte Carlo: Importance Sampling}
+
+\begin{parts}
+\part Explain the key difference between on-policy and off-policy Monte Carlo methods.
+
+\begin{solution}
+\textbf{On-Policy Monte Carlo:}
+\begin{itemize}
+\item Uses the \textbf{same policy} for generating episodes and learning
+\item Policy being evaluated = Policy being followed
+\item Simpler but limited to learning about the current exploration policy
+\item Can only find optimal $\epsilon$-soft policies, not truly optimal deterministic policies
+\end{itemize}
+
+\textbf{Off-Policy Monte Carlo:}
+\begin{itemize}
+\item Uses \textbf{two different policies}:
+\begin{itemize}
+\item \textbf{Behavior policy} $b$: generates episodes (usually exploratory)
+\item \textbf{Target policy} $\pi$: the policy we want to learn about (can be deterministic)
+\end{itemize}
+\item More complex (requires importance sampling) but more powerful
+\item Can learn optimal deterministic policies while maintaining exploration
+\item Requires coverage assumption: $\pi(a|s) > 0 \Rightarrow b(a|s) > 0$
+\end{itemize}
+\end{solution}
+
+\part Given a simple episode $S_0 \xrightarrow{A_0} S_1 \xrightarrow{A_1} S_2$ where:
+\begin{itemize}
+\item Behavior policy: $b(A_0|S_0) = 0.4$, $b(A_1|S_1) = 0.3$
+\item Target policy: $\pi(A_0|S_0) = 0.8$, $\pi(A_1|S_1) = 0.1$
+\end{itemize}
+Calculate the importance sampling ratio for this episode.
+
+\begin{solution}
+\textbf{Importance sampling ratio:}
+$\rho = \prod_{t=0}^{T-1} \frac{\pi(A_t|S_t)}{b(A_t|S_t)} = \frac{\pi(A_0|S_0)}{b(A_0|S_0)} \times \frac{\pi(A_1|S_1)}{b(A_1|S_1)}$
+
+$\rho = \frac{0.8}{0.4} \times \frac{0.1}{0.3} = 2.0 \times 0.333 = 0.667$
+
+\textbf{Interpretation:} This episode is less likely under the target policy than the behavior policy, so it gets down-weighted in the learning update.
+\end{solution}
+
+\part Why is the coverage assumption ($\pi(a|s) > 0 \Rightarrow b(a|s) > 0$) necessary for off-policy learning?
+
+\begin{solution}
+\textbf{Coverage assumption necessity:}
+\begin{itemize}
+\item If $\pi(a|s) > 0$ but $b(a|s) = 0$, then action $a$ in state $s$ will \textbf{never be taken} during episode generation
+\item We cannot learn about the value of actions that are never experienced
+\item The importance sampling ratio $\frac{\pi(a|s)}{b(a|s)}$ would be undefined (division by zero)
+\item Without coverage, our Q-value estimates for important actions could remain forever inaccurate
+\end{itemize}
+
+\textbf{Practical implication:} The behavior policy must be "exploratory enough" to visit all state-action pairs that the target policy might want to use.
+\end{solution}
+
+\end{parts}
+
+% =====================================================
+% PART V: COMPARATIVE ANALYSIS
+% =====================================================
+
+\section*{Part V: Comparative Analysis and Applications}
+
+\question \textbf{Method Comparison}
+
+\begin{parts}
+\part Fill in the comparison table for different reinforcement learning methods:
+
+\begin{center}
+\begin{tabular}{|p{2.5cm}|p{3cm}|p{3cm}|p{3cm}|}
+\hline
+\textbf{Method} & \textbf{Dynamic Programming} & \textbf{On-Policy MC} & \textbf{Off-Policy MC} \\
+\hline
+Model Required & & & \\
+\hline
+Episode Requirement & & & \\
+\hline
+Policy Flexibility & & & \\
+\hline
+Exploration Handling & & & \\
+\hline
+Computational Complexity & & & \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{solution}
+\begin{center}
+\begin{tabular}{|p{2.5cm}|p{3cm}|p{3cm}|p{3cm}|}
+\hline
+\textbf{Model Required} & Yes, full model & No & No \\
+\hline
+\textbf{Episode Requirement} & No episodes & Complete episodes & Complete episodes \\
+\hline
+\textbf{Policy Flexibility} & Any policy & $\epsilon$-soft only & Any target policy \\
+\hline
+\textbf{Exploration Handling} & N/A (no exploration needed) & Built into policy & Separate behavior policy \\
+\hline
+\textbf{Computational Complexity} & $O(|S|^2|A|)$ per iteration & $O(episode\ length)$ & $O(episode\ length)$ + importance sampling \\
+\hline
+\end{tabular}
+\end{center}
+\end{solution}
+
+\part For each scenario, recommend the most appropriate method and justify your choice:
+
+\begin{enumerate}
+\item Chess AI with complete game rules known
+\item Robot learning to walk in unknown terrain
+\item Stock trading bot learning from historical data while developing a new strategy
+\item Game AI that must learn while playing against human opponents
+\end{enumerate}
+
+\begin{solution}
+\begin{enumerate}
+\item \textbf{Dynamic Programming} - Complete game rules provide full model; no need for sample-based learning; can compute exact optimal policy
+
+\item \textbf{On-Policy Monte Carlo} - Unknown terrain requires experience-based learning; real-time learning during exploration is natural fit for on-policy methods
+
+\item \textbf{Off-Policy Monte Carlo} - Historical data represents behavior policy; want to learn new strategy (target policy) without being constrained by historical trading patterns
+
+\item \textbf{On-Policy Monte Carlo} - Must learn while playing; cannot separate behavior from target policy; $\epsilon$-greedy provides reasonable exploration against human opponents
+\end{enumerate}
+\end{solution}
+
+\end{parts}
+
+\question \textbf{Practical Implementation Considerations}
+
+\begin{parts}
+\part What are the main challenges in implementing Monte Carlo methods for real-world applications?
+
+\begin{solution}
+\textbf{Main challenges:}
+\begin{itemize}
+\item \textbf{Sample efficiency:} Requires many episodes to get good estimates, especially for rare states
+\item \textbf{Episodic requirement:} Many real-world problems are naturally continuing, not episodic
+\item \textbf{High variance:} Returns can have high variance, leading to slow convergence
+\item \textbf{Exploration vs exploitation:} Balancing learning and performance, especially in safety-critical applications
+\item \textbf{Long episodes:} Returns from long episodes may have high variance and delayed learning
+\item \textbf{Memory requirements:} Storing returns for all state-action pairs can be memory-intensive
+\item \textbf{Non-stationary environments:} If environment changes, historical data becomes less relevant
+\end{itemize}
+\end{solution}
+
+\part Suggest three strategies to improve the practical performance of Monte Carlo methods.
+
+\begin{solution}
+\textbf{Improvement strategies:}
+
+\begin{enumerate}
+\item \textbf{Incremental Updates:}
+\begin{itemize}
+\item Use $Q(s,a) \leftarrow Q(s,a) + \alpha[G - Q(s,a)]$ instead of storing all returns
+\item Reduces memory requirements and allows faster adaptation
+\item Learning rate $\alpha$ can be adjusted for different convergence properties
+\end{itemize}
+
+\item \textbf{Function Approximation:}
+\begin{itemize}
+\item Use neural networks or other function approximators instead of tabular representation
+\item Enables learning in large/continuous state spaces
+\item Allows generalization between similar states
+\end{itemize}
+
+\item \textbf{Variance Reduction Techniques:}
+\begin{itemize}
+\item Baseline subtraction: $G - V(s)$ instead of just $G$
+\item Control variates to reduce return variance
+\item Importance sampling with control variates in off-policy methods
+\end{itemize}
+\end{enumerate}
+\end{solution}
+
+\end{parts}
+
+\end{questions}
+
+\end{document}

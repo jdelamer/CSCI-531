@@ -1,0 +1,409 @@
+\documentclass{cstd}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\university{St. Francis Xavier University}
+\department{Department of Computer Science}
+\course{CSCI-531 - Reinforcement Learning}
+\courseshort{CSCI-531}
+\exam{Practice Exercises: On-Policy Prediction and Function Approximation}
+\examdate{Fall 2025}
+
+\begin{document}
+
+\maketitle
+
+% \printanswers
+
+
+\begin{questions}
+
+% =====================================================
+% PART I: FUNCTION APPROXIMATION FUNDAMENTALS
+% =====================================================
+
+\section*{Part I: Function Approximation Fundamentals}
+
+\question \textbf{Tabular vs Function Approximation}
+
+Consider a robot navigation task in a continuous 2D environment where the robot's state is represented by its position $(x, y)$ with $x, y \in [0, 100]$.
+
+\begin{parts}
+\part Explain why tabular methods are impractical for this problem. Calculate the number of states if we discretize the space into 1-unit grid cells.
+
+\begin{solution}
+\textbf{Why tabular methods are impractical:}
+\begin{itemize}
+    \item \textbf{Infinite state space}: Continuous coordinates give infinite possible states
+    \item \textbf{Memory explosion}: Even with discretization, we need storage for every state
+    \item \textbf{No generalization}: Learning about position $(50, 50)$ doesn't help with $(50.1, 50.1)$
+    \item \textbf{Sample efficiency}: Need to visit every state-action pair
+\end{itemize}
+
+\textbf{Number of discrete states:}
+With 1-unit grid cells: $101 \times 101 = 10,201$ states (including boundaries at 0 and 100)
+
+This is manageable for simple tabular methods, but imagine if we needed 0.1-unit precision: $1,001 \times 1,001 = 1,002,001$ states!
+\end{solution}
+
+\part Design a simple linear function approximation for this robot's value function. Define the feature vector $\mathbf{x}(s)$ and explain your choice.
+
+\begin{solution}
+\textbf{Linear function approximation:}
+$$\hat{v}(s, \mathbf{w}) = \mathbf{w}^T\mathbf{x}(s) = w_1 x + w_2 y + w_3$$
+
+\textbf{Feature vector:}
+$$\mathbf{x}(s) = \mathbf{x}(x,y) = \begin{bmatrix} x \\ y \\ 1 \end{bmatrix}$$
+
+\textbf{Justification:}
+\begin{itemize}
+    \item \textbf{Position dependence}: $w_1$ and $w_2$ allow value to vary with location
+    \item \textbf{Bias term}: $w_3$ provides baseline value independent of position
+    \item \textbf{Simple generalization}: Nearby positions get similar values
+    \item \textbf{Computational efficiency}: Only 3 parameters vs. thousands of states
+\end{itemize}
+\end{solution}
+
+\part If the robot's goal is at position $(100, 100)$ and it receives a reward of $-1$ per step plus $+100$ for reaching the goal, what would be reasonable initial values for $\mathbf{w} = [w_1, w_2, w_3]^T$?
+
+\begin{solution}
+\textbf{Reasoning:} We want higher values closer to the goal at $(100, 100)$.
+
+\textbf{Reasonable initialization:}
+$$\mathbf{w} = \begin{bmatrix} 0.5 \\ 0.5 \\ -50 \end{bmatrix}$$
+
+\textbf{Analysis:}
+\begin{itemize}
+    \item $w_1 = w_2 = 0.5$: Value increases as we move toward $(100, 100)$
+    \item $w_3 = -50$: Negative bias accounts for step costs
+    \item At goal $(100, 100)$: $\hat{v} = 0.5(100) + 0.5(100) - 50 = 50$
+    \item At start $(0, 0)$: $\hat{v} = 0.5(0) + 0.5(0) - 50 = -50$
+\end{itemize}
+
+This creates a gradient encouraging movement toward the goal.
+\end{solution}
+
+\end{parts}
+
+\question \textbf{State Distribution and MSVE}
+
+Consider a simple 3-state MDP with states $S = \{s_1, s_2, s_3\}$ and the following information:
+\begin{itemize}
+    \item True values: $v_\pi(s_1) = 10, v_\pi(s_2) = 5, v_\pi(s_3) = 15$
+    \item Approximate values: $\hat{v}(s_1,\mathbf{w}) = 8, \hat{v}(s_2,\mathbf{w}) = 7, \hat{v}(s_3,\mathbf{w}) = 12$
+    \item State distribution: $\mu(s_1) = 0.5, \mu(s_2) = 0.3, \mu(s_3) = 0.2$
+\end{itemize}
+
+\begin{parts}
+\part Calculate the Mean Squared Value Error (MSVE) for this approximation.
+
+\begin{solution}
+\textbf{MSVE Formula:}
+$$\overline{VE}(\mathbf{w}) = \sum_{s \in S} \mu(s) [v_\pi(s) - \hat{v}(s,\mathbf{w})]^2$$
+
+\textbf{Calculations:}
+\begin{align}
+\overline{VE}(\mathbf{w}) &= \mu(s_1)[v_\pi(s_1) - \hat{v}(s_1)]^2 + \mu(s_2)[v_\pi(s_2) - \hat{v}(s_2)]^2 + \mu(s_3)[v_\pi(s_3) - \hat{v}(s_3)]^2 \\
+&= 0.5[10 - 8]^2 + 0.3[5 - 7]^2 + 0.2[15 - 12]^2 \\
+&= 0.5(4) + 0.3(4) + 0.2(9) \\
+&= 2.0 + 1.2 + 1.8 \\
+&= 5.0
+\end{align}
+\end{solution}
+
+\part How would the MSVE change if we used a uniform distribution $\mu(s_1) = \mu(s_2) = \mu(s_3) = 1/3$ instead?
+
+\begin{solution}
+\textbf{With uniform distribution:}
+$$\overline{VE}(\mathbf{w}) = \frac{1}{3}[2^2] + \frac{1}{3}[(-2)^2] + \frac{1}{3}[3^2]$$
+$$= \frac{1}{3}(4) + \frac{1}{3}(4) + \frac{1}{3}(9) = \frac{17}{3} \approx 5.67$$
+
+\textbf{Comparison:}
+\begin{itemize}
+    \item Original MSVE: 5.0
+    \item Uniform MSVE: 5.67
+    \item The original distribution puts more weight on $s_1$ and $s_2$ (which have smaller errors) and less weight on $s_3$ (which has the largest error)
+\end{itemize}
+\end{solution}
+
+\part Explain why the choice of state distribution $\mu(s)$ matters for learning.
+
+\begin{solution}
+\textbf{Why state distribution matters:}
+
+\begin{itemize}
+    \item \textbf{Learning priority}: States with higher $\mu(s)$ get more learning attention
+    \item \textbf{Performance focus}: We care more about accuracy in frequently visited states
+    \item \textbf{On-policy choice}: Using the on-policy distribution $\mu(s) = $ time spent in $s$ under $\pi$ makes sense because:
+    \begin{itemize}
+        \item We want good performance where the agent actually goes
+        \item Matches the natural sampling during experience
+        \item Balances learning effort with practical importance
+    \end{itemize}
+    \item \textbf{Trade-offs}: High $\mu(s)$ for rare but critical states (e.g., emergency situations) might be important even if infrequent
+\end{itemize}
+\end{solution}
+
+\end{parts}
+
+% =====================================================
+% PART II: GRADIENT METHODS
+% =====================================================
+
+\section*{Part II: Gradient Methods}
+
+\question \textbf{Gradient Descent Fundamentals}
+
+\begin{parts}
+\part For the function $f(\mathbf{w}) = w_1^2 + 2w_2^2 - 4w_1 + 6w_2 + 10$, compute the gradient $\nabla f(\mathbf{w})$.
+
+\begin{solution}
+\textbf{Partial derivatives:}
+$$\frac{\partial f}{\partial w_1} = 2w_1 - 4$$
+$$\frac{\partial f}{\partial w_2} = 4w_2 + 6$$
+
+\textbf{Gradient vector:}
+$$\nabla f(\mathbf{w}) = \begin{bmatrix} 2w_1 - 4 \\ 4w_2 + 6 \end{bmatrix}$$
+\end{solution}
+
+\part Starting from $\mathbf{w}_0 = [3, -1]^T$ with learning rate $\alpha = 0.1$, perform three steps of gradient descent.
+
+\begin{solution}
+\textbf{Gradient descent update:} $\mathbf{w}_{t+1} = \mathbf{w}_t - \alpha \nabla f(\mathbf{w}_t)$
+
+\textbf{Step 1:}
+$$\nabla f([3, -1]^T) = \begin{bmatrix} 2(3) - 4 \\ 4(-1) + 6 \end{bmatrix} = \begin{bmatrix} 2 \\ 2 \end{bmatrix}$$
+$$\mathbf{w}_1 = \begin{bmatrix} 3 \\ -1 \end{bmatrix} - 0.1 \begin{bmatrix} 2 \\ 2 \end{bmatrix} = \begin{bmatrix} 2.8 \\ -1.2 \end{bmatrix}$$
+
+\textbf{Step 2:}
+$$\nabla f([2.8, -1.2]^T) = \begin{bmatrix} 2(2.8) - 4 \\ 4(-1.2) + 6 \end{bmatrix} = \begin{bmatrix} 1.6 \\ 1.2 \end{bmatrix}$$
+$$\mathbf{w}_2 = \begin{bmatrix} 2.8 \\ -1.2 \end{bmatrix} - 0.1 \begin{bmatrix} 1.6 \\ 1.2 \end{bmatrix} = \begin{bmatrix} 2.64 \\ -1.32 \end{bmatrix}$$
+
+\textbf{Step 3:}
+$$\nabla f([2.64, -1.32]^T) = \begin{bmatrix} 2(2.64) - 4 \\ 4(-1.32) + 6 \end{bmatrix} = \begin{bmatrix} 1.28 \\ 0.72 \end{bmatrix}$$
+$$\mathbf{w}_3 = \begin{bmatrix} 2.64 \\ -1.32 \end{bmatrix} - 0.1 \begin{bmatrix} 1.28 \\ 0.72 \end{bmatrix} = \begin{bmatrix} 2.512 \\ -1.392 \end{bmatrix}$$
+\end{solution}
+
+\end{parts}
+
+\question \textbf{Stochastic Gradient Descent in RL}
+
+Consider a simple 2-state MDP where we want to approximate $v_\pi(s)$ using linear function approximation with features:
+\begin{itemize}
+    \item $\mathbf{x}(s_1) = [1, 0]^T$, $\mathbf{x}(s_2) = [0, 1]^T$
+    \item True values: $v_\pi(s_1) = 3$, $v_\pi(s_2) = 7$
+\end{itemize}
+
+\begin{parts}
+\part Write the linear approximation formula and explain what the weight vector represents in this case.
+
+\begin{solution}
+\textbf{Linear approximation:}
+$$\hat{v}(s, \mathbf{w}) = \mathbf{w}^T\mathbf{x}(s) = w_1 x_1(s) + w_2 x_2(s)$$
+
+\textbf{For each state:}
+\begin{itemize}
+    \item $\hat{v}(s_1, \mathbf{w}) = w_1 \cdot 1 + w_2 \cdot 0 = w_1$
+    \item $\hat{v}(s_2, \mathbf{w}) = w_1 \cdot 0 + w_2 \cdot 1 = w_2$
+\end{itemize}
+
+\textbf{Weight interpretation:}
+\begin{itemize}
+    \item $w_1$ = approximate value of state $s_1$
+    \item $w_2$ = approximate value of state $s_2$
+    \item This is equivalent to tabular representation with these specific features!
+\end{itemize}
+\end{solution}
+
+\part Starting with $\mathbf{w}_0 = [0, 0]^T$ and $\alpha = 0.2$, perform two SGD updates if we observe samples: $(s_1, v_\pi(s_1))$ then $(s_2, v_\pi(s_2))$.
+
+\begin{solution}
+\textbf{SGD Update Rule:}
+$$\mathbf{w}_{t+1} = \mathbf{w}_t + \alpha [v_\pi(s) - \hat{v}(s,\mathbf{w}_t)] \nabla\hat{v}(s,\mathbf{w}_t)$$
+
+Since $\hat{v}(s,\mathbf{w}) = \mathbf{w}^T\mathbf{x}(s)$, we have $\nabla\hat{v}(s,\mathbf{w}) = \mathbf{x}(s)$
+
+\textbf{Update 1: Sample $(s_1, 3)$}
+\begin{align}
+\text{Error} &= v_\pi(s_1) - \hat{v}(s_1,\mathbf{w}_0) = 3 - 0 = 3 \\
+\mathbf{w}_1 &= \mathbf{w}_0 + 0.2 \cdot 3 \cdot \mathbf{x}(s_1) \\
+&= \begin{bmatrix} 0 \\ 0 \end{bmatrix} + 0.6 \begin{bmatrix} 1 \\ 0 \end{bmatrix} = \begin{bmatrix} 0.6 \\ 0 \end{bmatrix}
+\end{align}
+
+\textbf{Update 2: Sample $(s_2, 7)$}
+\begin{align}
+\text{Error} &= v_\pi(s_2) - \hat{v}(s_2,\mathbf{w}_1) = 7 - 0 = 7 \\
+\mathbf{w}_2 &= \mathbf{w}_1 + 0.2 \cdot 7 \cdot \mathbf{x}(s_2) \\
+&= \begin{bmatrix} 0.6 \\ 0 \end{bmatrix} + 1.4 \begin{bmatrix} 0 \\ 1 \end{bmatrix} = \begin{bmatrix} 0.6 \\ 1.4 \end{bmatrix}
+\end{align}
+\end{solution}
+
+\part What would happen if we continued this process indefinitely with the same sampling pattern?
+
+\begin{solution}
+\textbf{Convergence analysis:}
+
+With this feature representation and infinite alternating samples:
+\begin{itemize}
+    \item $w_1$ would converge to $v_\pi(s_1) = 3$
+    \item $w_2$ would converge to $v_\pi(s_2) = 7$
+    \item This achieves perfect approximation because the features are orthogonal and complete
+\end{itemize}
+
+\textbf{Why this works:}
+\begin{itemize}
+    \item No interference between states (orthogonal features)
+    \item Each weight only affects one state's value
+    \item Equivalent to tabular learning with SGD
+\end{itemize}
+
+\textbf{Rate of convergence:} Exponential with rate depending on $\alpha$.
+\end{solution}
+
+\end{parts}
+
+% =====================================================
+% PART III: PREDICTION ALGORITHMS
+% =====================================================
+
+\section*{Part III: Prediction Algorithms}
+
+\question \textbf{Gradient Monte Carlo}
+
+Consider a simple episodic task where an agent can be in states $\{s_1, s_2, s_3\}$ and always follows the episode: $s_1 \rightarrow s_2 \rightarrow s_3$ (terminal) with rewards $r_1 = 1, r_2 = 2, r_3 = 5$. Use $\gamma = 0.9$.
+
+\begin{parts}
+\part Calculate the true returns $G_0, G_1, G_2$ for this episode.
+
+\begin{solution}
+\textbf{Return calculations:}
+\begin{align}
+G_2 &= r_3 = 5 \\
+G_1 &= r_2 + \gamma G_2 = 2 + 0.9(5) = 2 + 4.5 = 6.5 \\
+G_0 &= r_1 + \gamma G_1 = 1 + 0.9(6.5) = 1 + 5.85 = 6.85
+\end{align}
+\end{solution}
+
+\part Using linear function approximation with features $\mathbf{x}(s_1) = [1, 0]^T$, $\mathbf{x}(s_2) = [1, 1]^T$, $\mathbf{x}(s_3) = [0, 1]^T$, write the Gradient Monte Carlo updates for this episode with $\alpha = 0.1$ and initial weights $\mathbf{w}_0 = [0, 0]^T$.
+
+\begin{solution}
+\textbf{Gradient Monte Carlo update:}
+$$\mathbf{w} \leftarrow \mathbf{w} + \alpha[G_t - \hat{v}(S_t,\mathbf{w})]\nabla\hat{v}(S_t,\mathbf{w})$$
+
+For linear approximation: $\nabla\hat{v}(s,\mathbf{w}) = \mathbf{x}(s)$
+
+\textbf{Update for $s_1$ (t=0):}
+\begin{align}
+\hat{v}(s_1,\mathbf{w}_0) &= [0, 0] \cdot [1, 0]^T = 0 \\
+\mathbf{w}_1 &= [0, 0]^T + 0.1(6.85 - 0)[1, 0]^T \\
+&= [0, 0]^T + 0.685[1, 0]^T = [0.685, 0]^T
+\end{align}
+
+\textbf{Update for $s_2$ (t=1):}
+\begin{align}
+\hat{v}(s_2,\mathbf{w}_1) &= [0.685, 0] \cdot [1, 1]^T = 0.685 \\
+\mathbf{w}_2 &= [0.685, 0]^T + 0.1(6.5 - 0.685)[1, 1]^T \\
+&= [0.685, 0]^T + 0.5815[1, 1]^T = [1.2665, 0.5815]^T
+\end{align}
+
+\textbf{Update for $s_3$ (t=2):}
+\begin{align}
+\hat{v}(s_3,\mathbf{w}_2) &= [1.2665, 0.5815] \cdot [0, 1]^T = 0.5815 \\
+\mathbf{w}_3 &= [1.2665, 0.5815]^T + 0.1(5 - 0.5815)[0, 1]^T \\
+&= [1.2665, 0.5815]^T + 0.44185[0, 1]^T = [1.2665, 1.02335]^T
+\end{align}
+\end{solution}
+
+\part What are the final approximate values $\hat{v}(s_1), \hat{v}(s_2), \hat{v}(s_3)$ after this episode?
+
+\begin{solution}
+\textbf{Using final weights} $\mathbf{w}_3 = [1.2665, 1.02335]^T$:
+
+\begin{align}
+\hat{v}(s_1) &= [1.2665, 1.02335] \cdot [1, 0]^T = 1.2665 \\
+\hat{v}(s_2) &= [1.2665, 1.02335] \cdot [1, 1]^T = 2.28985 \\
+\hat{v}(s_3) &= [1.2665, 1.02335] \cdot [0, 1]^T = 1.02335
+\end{align}
+
+\textbf{Comparison with true values:}
+\begin{itemize}
+    \item $\hat{v}(s_1) = 1.27$ vs $G_0 = 6.85$ (error: -5.58)
+    \item $\hat{v}(s_2) = 2.29$ vs $G_1 = 6.5$ (error: -4.21)
+    \item $\hat{v}(s_3) = 1.02$ vs $G_2 = 5$ (error: -3.98)
+\end{itemize}
+
+Values are still far from true returns but moving in the right direction.
+\end{solution}
+
+\end{parts}
+
+\question \textbf{Semi-Gradient TD(0)}
+
+Using the same MDP setup as the previous question, but now we'll use Semi-Gradient TD(0) for online learning.
+
+\begin{parts}
+\part Write the Semi-Gradient TD(0) update equation for linear function approximation.
+
+\begin{solution}
+\textbf{Semi-Gradient TD(0) update:}
+$$\mathbf{w} \leftarrow \mathbf{w} + \alpha[R + \gamma\hat{v}(S',\mathbf{w}) - \hat{v}(S,\mathbf{w})]\nabla\hat{v}(S,\mathbf{w})$$
+
+For linear approximation: $\nabla\hat{v}(S,\mathbf{w}) = \mathbf{x}(S)$
+
+So the update becomes:
+$$\mathbf{w} \leftarrow \mathbf{w} + \alpha[R + \gamma\hat{v}(S',\mathbf{w}) - \hat{v}(S,\mathbf{w})]\mathbf{x}(S)$$
+\end{solution}
+
+\part Starting with $\mathbf{w}_0 = [0, 0]^T$ and $\alpha = 0.1$, perform the TD(0) updates for the transitions $(s_1, 1, s_2)$ and $(s_2, 2, s_3)$.
+
+\begin{solution}
+\textbf{Transition 1: $(s_1, 1, s_2)$}
+\begin{align}
+\hat{v}(s_1,\mathbf{w}_0) &= [0,0] \cdot [1,0]^T = 0 \\
+\hat{v}(s_2,\mathbf{w}_0) &= [0,0] \cdot [1,1]^T = 0 \\
+\text{TD Error} &= 1 + 0.9(0) - 0 = 1 \\
+\mathbf{w}_1 &= [0,0]^T + 0.1 \cdot 1 \cdot [1,0]^T = [0.1, 0]^T
+\end{align}
+
+\textbf{Transition 2: $(s_2, 2, s_3)$}
+\begin{align}
+\hat{v}(s_2,\mathbf{w}_1) &= [0.1,0] \cdot [1,1]^T = 0.1 \\
+\hat{v}(s_3,\mathbf{w}_1) &= [0.1,0] \cdot [0,1]^T = 0 \\
+\text{TD Error} &= 2 + 0.9(0) - 0.1 = 1.9 \\
+\mathbf{w}_2 &= [0.1,0]^T + 0.1 \cdot 1.9 \cdot [1,1]^T = [0.29, 0.19]^T
+\end{align}
+\end{solution}
+
+\part Compare the convergence properties of Gradient Monte Carlo vs Semi-Gradient TD(0).
+
+\begin{solution}
+\textbf{Gradient Monte Carlo:}
+\begin{itemize}
+    \item \textbf{Target}: True return $G_t$ (unbiased)
+    \item \textbf{Convergence}: Guaranteed to local optimum of MSVE
+    \item \textbf{Variance}: Higher (full episode returns)
+    \item \textbf{Speed}: Slower (needs complete episodes)
+    \item \textbf{Bias}: None in the target
+\end{itemize}
+
+\textbf{Semi-Gradient TD(0):}
+\begin{itemize}
+    \item \textbf{Target}: $R + \gamma\hat{v}(S',\mathbf{w})$ (biased bootstrap)
+    \item \textbf{Convergence}: May not converge to MSVE minimum
+    \item \textbf{Variance}: Lower (single-step bootstrap)
+    \item \textbf{Speed}: Faster (online updates)
+    \item \textbf{Bias}: Present due to bootstrapping from approximate values
+\end{itemize}
+
+\textbf{Trade-off:} TD(0) is more sample efficient but sacrifices convergence guarantees.
+\end{solution}
+
+\end{parts}
+
+\end{questions}
+
+\end{document}
