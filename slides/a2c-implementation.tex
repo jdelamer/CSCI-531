@@ -1,0 +1,308 @@
+\documentclass{csbeamer}
+
+\usepackage{dsfont}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+
+% Add custom color definitions for Deep RL (matching main file)
+\definecolor{drlmain}{HTML}{6A1B9A}
+\definecolor{drlaccent}{HTML}{FF6B35}
+\definecolor{drllight}{HTML}{9C27B0}
+\definecolor{drlsecondary}{HTML}{00897B}
+\definecolor{drlpolicy}{HTML}{D32F2F}
+\definecolor{drlvalue}{HTML}{1976D2}
+\definecolor{drlactor}{HTML}{E91E63}
+\definecolor{drlcritic}{HTML}{3F51B5}
+\definecolor{drlgradient}{HTML}{FF9800}
+\definecolor{drladvantage}{HTML}{4CAF50}
+\definecolor{drlneural}{HTML}{7B1FA2}
+
+\university{St. Francis Xavier University}
+\department{Department of Computer Science}
+\course{CSCI-531 - Reinforcement Learning}
+\courseshort{CSCI-531 - RL}
+\term{Fall 2025}
+\author{Dr. Jean-Alexis Delamer}
+
+\title{A2C Implementation in PyTorch}
+
+\begin{document}
+
+\maketitle
+
+\begin{frame}
+    \frametitle{Implementing A2C in PyTorch}
+
+    \begin{block}<1->{From Theory to Code}
+        Now let's see how to implement A2C in practice!
+    \end{block}
+
+    \begin{block}<2->{What We'll Cover}
+        \begin{itemize}
+            \item<3-> \textcolor{drlneural}{\textbf{Network architecture}}: Shared backbone with two heads
+            \item<4-> \textcolor{drlactor}{\textbf{Policy (actor) head}}: Outputs action probabilities
+            \item<5-> \textcolor{drlcritic}{\textbf{Value (critic) head}}: Outputs state value
+            \item<6-> \textcolor{drlmain}{\textbf{Loss computation}}: Actor + Critic + Entropy
+            \item<7-> \textcolor{drladvantage}{\textbf{Training loop}}: Putting it all together
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{A2C Network Architecture}
+
+    \begin{block}<1->{Shared Network with Two Heads}
+        \begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, keywordstyle=\color{drlmain}, commentstyle=\color{gray}, stringstyle=\color{drlsecondary}]
+import torch
+import torch.nn as nn
+
+class A2CNetwork(nn.Module):
+    def __init__(self, obs_dim, action_dim, hidden_dim=64):
+        super().__init__()
+
+        # Shared feature extractor
+        self.shared = nn.Sequential(
+            nn.Linear(obs_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU()
+        )
+
+        # Policy head (actor)
+        self.policy_head = nn.Linear(hidden_dim, action_dim)
+
+        # Value head (critic)
+        self.value_head = nn.Linear(hidden_dim, 1)
+        \end{lstlisting}
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Forward Pass}
+
+    \begin{block}<1->{Computing Policy and Value}
+        \begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, keywordstyle=\color{drlmain}, commentstyle=\color{gray}, stringstyle=\color{drlsecondary}]
+    def forward(self, state):
+        # Extract shared features
+        features = self.shared(state)
+
+        # Policy: action logits
+        logits = self.policy_head(features)
+
+        # Value: state value estimate
+        value = self.value_head(features)
+
+        return logits, value
+        \end{lstlisting}
+    \end{block}
+
+    \begin{block}<2->{Key Points}
+        \begin{itemize}
+            \item<2-> \textcolor{drlneural}{\textbf{Shared layers}} extract features once
+            \item<3-> \textcolor{drlactor}{\textbf{Logits}} are unnormalized log probabilities
+            \item<4-> \textcolor{drlcritic}{\textbf{Value}} estimates $V(s)$
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Computing Actor Loss}
+
+    \begin{block}<1->{Policy Gradient with Advantage}
+        \begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, keywordstyle=\color{drlmain}, commentstyle=\color{gray}, stringstyle=\color{drlsecondary}]
+import torch.distributions as dist
+
+def compute_actor_loss(logits, actions, advantages):
+    # Create categorical distribution from logits
+    policy = dist.Categorical(logits=logits)
+
+    # Log probability of taken actions
+    log_probs = policy.log_prob(actions)
+
+    # Actor loss: -advantage * log_prob
+    actor_loss = -(log_probs * advantages).mean()
+
+    return actor_loss, policy
+        \end{lstlisting}
+    \end{block}
+
+    \begin{block}<2->{Explanation}
+        \begin{itemize}
+            \item<2-> \texttt{Categorical} handles softmax internally
+            \item<3-> \texttt{log\_prob} computes $\log \pi_\theta(a_t|s_t)$
+            \item<4-> Negative sign converts maximization to minimization
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Computing Critic Loss and Entropy}
+
+    \begin{block}<1->{Value Function Loss (MSE)}
+        \begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, keywordstyle=\color{drlmain}, commentstyle=\color{gray}, stringstyle=\color{drlsecondary}]
+def compute_critic_loss(values, returns):
+    # Critic loss: mean squared error
+    critic_loss = ((returns - values) ** 2).mean()
+    return critic_loss
+        \end{lstlisting}
+    \end{block}
+
+    \begin{block}<2->{Entropy Bonus}
+        \begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, keywordstyle=\color{drlmain}, commentstyle=\color{gray}, stringstyle=\color{drlsecondary}]
+def compute_entropy(policy):
+    # Entropy of the policy distribution
+    entropy = policy.entropy().mean()
+    return entropy
+        \end{lstlisting}
+    \end{block}
+
+    \begin{block}<3->{Note}
+        \begin{itemize}
+            \item<4-> \texttt{returns} = $r_t + \gamma V(s_{t+1})$ (computed beforehand)
+            \item<5-> PyTorch's \texttt{Categorical} has built-in \texttt{entropy()} method
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Total Loss and Update}
+
+    \begin{block}<1->{Combining All Components}
+        \begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, keywordstyle=\color{drlmain}, commentstyle=\color{gray}, stringstyle=\color{drlsecondary}]
+# Hyperparameters
+value_coef = 0.5
+entropy_coef = 0.01
+
+# Compute individual losses
+actor_loss, policy = compute_actor_loss(logits, actions, advantages)
+critic_loss = compute_critic_loss(values, returns)
+entropy = compute_entropy(policy)
+
+# Total loss
+total_loss = actor_loss + value_coef * critic_loss - entropy_coef * entropy
+
+# Update network
+optimizer.zero_grad()
+total_loss.backward()
+optimizer.step()
+        \end{lstlisting}
+    \end{block}
+
+    \begin{block}<2->{This Implements}
+        \begin{equation*}
+            L_\text{total} = L_\text{actor} + c_1 L_\text{critic} - c_2 H(\pi_\theta)
+        \end{equation*}
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Computing Advantages}
+
+    \begin{block}<1->{TD Error and Advantage Estimation}
+        \begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, keywordstyle=\color{drlmain}, commentstyle=\color{gray}, stringstyle=\color{drlsecondary}]
+def compute_advantages(rewards, values, next_values, dones, gamma=0.99):
+    # Compute returns: r + gamma * V(s')
+    returns = rewards + gamma * next_values * (1 - dones)
+
+    # Compute advantages: A = returns - V(s)
+    advantages = returns - values
+
+    # Normalize advantages (training trick)
+    advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
+
+    return advantages, returns
+        \end{lstlisting}
+    \end{block}
+
+    \begin{block}<2->{Key Points}
+        \begin{itemize}
+            \item<3-> \texttt{dones} masks terminal states (no future value)
+            \item<4-> \textcolor{drladvantage}{\textbf{Normalizing advantages}} stabilizes training
+            \item<5-> Small epsilon ($10^{-8}$) prevents division by zero
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Complete Training Loop}
+
+    \begin{block}<1->{Putting It All Together}
+        \begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, keywordstyle=\color{drlmain}, commentstyle=\color{gray}, stringstyle=\color{drlsecondary}]
+for episode in range(num_episodes):
+    state = env.reset()
+
+    # Collect trajectory
+    states, actions, rewards, next_states, dones = [], [], [], [], []
+
+    for t in range(max_steps):
+        # Get action from policy
+        logits, value = network(state)
+        policy = dist.Categorical(logits=logits)
+        action = policy.sample()
+
+        # Take action in environment
+        next_state, reward, done, _ = env.step(action)
+
+        # Store transition
+        states.append(state)
+        actions.append(action)
+        rewards.append(reward)
+        next_states.append(next_state)
+        dones.append(done)
+
+        state = next_state
+        if done: break
+        \end{lstlisting}
+    \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+    \frametitle{Complete Training Loop (cont.)}
+
+    \begin{block}<1->{Update Step}
+        \begin{lstlisting}[language=Python, basicstyle=\tiny\ttfamily, keywordstyle=\color{drlmain}, commentstyle=\color{gray}, stringstyle=\color{drlsecondary}]
+    # Convert to tensors
+    states = torch.FloatTensor(states)
+    actions = torch.LongTensor(actions)
+    rewards = torch.FloatTensor(rewards)
+    next_states = torch.FloatTensor(next_states)
+    dones = torch.FloatTensor(dones)
+
+    # Forward pass
+    logits, values = network(states)
+    _, next_values = network(next_states)
+
+    # Compute advantages and returns
+    advantages, returns = compute_advantages(rewards, values.detach(),
+                                            next_values.detach(), dones)
+
+    # Compute losses
+    actor_loss, policy = compute_actor_loss(logits, actions, advantages)
+    critic_loss = compute_critic_loss(values, returns)
+    entropy = compute_entropy(policy)
+
+    # Update
+    total_loss = actor_loss + 0.5 * critic_loss - 0.01 * entropy
+    optimizer.zero_grad()
+    total_loss.backward()
+    optimizer.step()
+        \end{lstlisting}
+    \end{block}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Implementation Summary}
+
+    \begin{block}<1->{Key Takeaways}
+        \begin{enumerate}
+            \item<2-> \textcolor{drlneural}{\textbf{Shared network}} with policy and value heads
+            \item<3-> \textcolor{drlactor}{\textbf{Actor loss}}: Negative log probability weighted by advantage
+            \item<4-> \textcolor{drlcritic}{\textbf{Critic loss}}: Mean squared error of TD targets
+            \item<5-> \textcolor{drladvantage}{\textbf{Entropy bonus}}: Subtract from loss to encourage exploration
+            \item<6-> \textcolor{drlmain}{\textbf{Normalize advantages}}: Critical for stable training
+        \end{enumerate}
+    \end{block}
+\end{frame}
+
+\end{document}
